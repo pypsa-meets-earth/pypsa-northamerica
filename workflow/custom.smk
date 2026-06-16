@@ -15,7 +15,7 @@ from scripts.custom._helper import renewable_profiles_outputs
 
 HTTP = HTTPRemoteProvider()
 
-RESULTS_DIR = "plots/results/"
+RESULTS_DIR = "../plots/results/"
 PYPSA_EARTH_DIR = ""
 CUSTOM_USA_DATA_DIR = "data/custom/usa/"
 
@@ -73,7 +73,7 @@ rule process_airport_data:
     resources:
         mem_mb=3000,
     script:
-        "plots/airport_data_postprocessing.py"
+         "../scripts/custom/process_airport_data.py"
 
 
 rule generate_aviation_scenario:

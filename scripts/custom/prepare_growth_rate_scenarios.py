@@ -10,7 +10,7 @@ import warnings
 sys.path.append(os.path.abspath(os.path.join(__file__, "../../")))
 warnings.filterwarnings("ignore")
 
-from scripts._helper import (
+from scripts.custom._helper import (
     PYPSA_EARTH_DIR,
     configure_logging,
     create_logger,

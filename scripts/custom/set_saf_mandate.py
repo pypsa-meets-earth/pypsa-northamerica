@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(__file__, "../../")))
 import numpy as np
 import pandas as pd
 
-from scripts._helper import (
+from scripts.custom._helper import (
     configure_logging,
     create_logger,
     load_network,

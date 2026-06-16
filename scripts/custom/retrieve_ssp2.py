@@ -9,7 +9,7 @@ import shutil
 import warnings
 
 warnings.filterwarnings("ignore")
-from scripts._helper import (
+from scripts.custom._helper import (
     configure_logging,
     create_logger,
     mock_snakemake,

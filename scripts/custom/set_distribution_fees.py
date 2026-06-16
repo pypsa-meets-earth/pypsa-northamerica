@@ -14,7 +14,7 @@ import pandas as pd
 import pypsa
 
 warnings.filterwarnings("ignore")
-from scripts._helper import (
+from scripts.custom._helper import (
     PYPSA_EARTH_DIR,
     configure_logging,
     create_logger,

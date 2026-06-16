@@ -16,7 +16,7 @@ from _helpers import prepare_costs
 from build_demand_profiles_from_eia import read_data_center_profiles
 from prepare_sector_network import normalize_by_country, p_set_from_scaling
 
-from scripts._helper import (
+from scripts.custom._helper import (
     configure_logging,
     create_logger,
     load_network,

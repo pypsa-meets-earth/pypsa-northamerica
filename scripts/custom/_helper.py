@@ -26,11 +26,11 @@ warnings.filterwarnings("ignore")
 
 
 # get the base working directory
-BASE_PATH = os.path.abspath(os.path.join(__file__, "../.."))
+BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 PLOTS_DIR = BASE_PATH + "/plots/results/"
 DATA_DIR = BASE_PATH + "/data/"
 # get pypsa-earth submodule directory path
-PYPSA_EARTH_DIR = BASE_PATH + "/submodules/pypsa-earth"
+PYPSA_EARTH_DIR = BASE_PATH
 
 LINE_OPTS = {"2021": "copt"}
 

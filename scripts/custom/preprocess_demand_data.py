@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 from shapely.validation import make_valid
 
-from scripts._helper import (
+from scripts.custom._helper import (
     BASE_PATH,
     configure_logging,
     create_logger,
