@@ -1,0 +1,24 @@
+carrier,credit,regime
+nuclear_existing,-5.73,
+nuclear_new,-16.09,
+geothermal,-17.53,
+biomass,-17.84,
+solar,-15.64,
+onwind,-18.15,
+offwind-ac,-18.1,
+offwind-dc,-18.1,
+ethanol from starch CC,-75.69,OB3
+SMR CC,-75.69,OB3
+DRI CC,-75.69,OB3
+BF-BOF CC,-75.69,OB3
+dry clinker CC,-75.69,OB3
+DAC,-170.1,OB3
+ethanol from starch CC,-53.4245404359705,IRA 2022
+SMR CC,-53.4245404359705,IRA 2022
+DRI CC,-53.4245404359705,IRA 2022
+BF-BOF CC,-53.4245404359705,IRA 2022
+dry clinker CC,-53.4245404359705,IRA 2022
+DAC,-122.850624134882,IRA 2022
+Alkaline electrolyzer large,-76.98,
+PEM electrolyzer,-76.98,
+SOEC,-76.98,

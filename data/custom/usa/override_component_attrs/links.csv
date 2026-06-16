@@ -1,0 +1,22 @@
+attribute,type,unit,default,description,status
+bus2,string,n/a,n/a,2nd bus,Input (optional)
+bus3,string,n/a,n/a,3rd bus,Input (optional)
+bus4,string,n/a,n/a,4th bus,Input (optional)
+bus5,string,n/a,n/a,5th bus,Input (optional)
+bus6,string,n/a,n/a,6th bus,Input (optional)
+bus7,string,n/a,n/a,7th bus,Input (optional)
+efficiency2,static or series,per unit,1.,2nd bus efficiency,Input (optional)
+efficiency3,static or series,per unit,1.,3rd bus efficiency,Input (optional)
+efficiency4,static or series,per unit,1.,4th bus efficiency,Input (optional)
+efficiency5,static or series,per unit,1.,5th bus efficiency,Input (optional)
+efficiency6,static or series,per unit,1.,6th bus efficiency,Input (optional)
+efficiency7,static or series,per unit,1.,7th bus efficiency,Input (optional)
+p2,series,MW,0.,2nd bus output,Output
+p3,series,MW,0.,3rd bus output,Output
+p4,series,MW,0.,4th bus output,Output
+p5,series,MW,0.,5th bus output,Output
+p6,series,MW,0.,6th bus output,Output
+p7,series,MW,0.,7th bus output,Output
+build_year,integer,year,n/a,build year,Input (optional)
+lifetime,float,years,n/a,lifetime,Input (optional)
+carrier,string,n/a,n/a,carrier,Input (optional)
