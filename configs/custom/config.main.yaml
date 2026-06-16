@@ -15,6 +15,8 @@ retrieve_from_gdrive:
   base_network: true # if true, bypasses base_network rule
   renewable_profiles: true # if true, bypasses build_renewable_profiles rule
 
+custom_rules: ["workflow/custom.smk"]
+
 costs:
   discountrate: [0.07] # from the `fill_values` section
   output_currency: "USD"
@@ -60,7 +62,7 @@ demand_distribution:
   holes_area_threshold: 100
   nprocesses: 4
   plotting: true
-  set_custom_distribution_fees: true # true, false
+  set_distribution_fees: true # true, false
 
 demand_projection:
   planning_horizon: 2023

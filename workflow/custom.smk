@@ -8,21 +8,31 @@ min_version("6.0")
 
 import sys
 
-sys.path.append("submodules/pypsa-earth")
-sys.path.append("submodules/pypsa-earth/scripts")
+sys.path.append("scripts")
 
 from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
-from scripts._helper import renewable_profiles_outputs
+from scripts.custom._helper import renewable_profiles_outputs
 
 HTTP = HTTPRemoteProvider()
 
 RESULTS_DIR = "plots/results/"
-PYPSA_EARTH_DIR = "submodules/pypsa-earth/"
+PYPSA_EARTH_DIR = ""
+CUSTOM_USA_DATA_DIR = "data/custom/usa/"
 
 
-configfile: "submodules/pypsa-earth/config.default.yaml"
-configfile: "submodules/pypsa-earth/configs/bundle_config.yaml"
-configfile: "configs/config.main.yaml"
+# Import the base standalone workflow as a module with custom rules disabled.
+# Only selected rules are copied below under *_custom names.
+module pypsa_earth:
+    snakefile:
+        "../Snakefile"
+    config:
+        {**config, "custom_rules": []}
+
+
+
+configfile: "config.default.yaml"
+configfile: "configs/bundle_config.yaml"
+configfile: "configs/custom/config.main.yaml"
 
 
 wildcard_constraints:
@@ -43,28 +53,16 @@ SDIR = config["summary_dir"].strip("/") + f"/{SECDIR}"
 RESDIR = config["results_dir"].strip("/") + f"/{SECDIR}"
 
 
-module pypsa_earth:
-    snakefile:
-        "submodules/pypsa-earth/Snakefile"
-    config:
-        config
-    prefix:
-        "submodules/pypsa-earth"
-
-
-use rule * from pypsa_earth
-
-
 localrules:
     all,
 
 
 rule process_airport_data:
     input:
-        fuel_data="data/airport_data/fuel_jf.csv",
-        airport_data="data/airport_data/airports.csv",
-        passengers_data="data/airport_data/T100_Domestic_Market_and_Segment_Data_-3591723781169319541.csv",
-        aviation_demand="data/icct/aviation_demand.csv",
+        fuel_data=CUSTOM_USA_DATA_DIR + "airport_data/fuel_jf.csv",
+        airport_data=CUSTOM_USA_DATA_DIR + "airport_data/airports.csv",
+        passengers_data=CUSTOM_USA_DATA_DIR + "airport_data/T100_Domestic_Market_and_Segment_Data_-3591723781169319541.csv",
+        aviation_demand=CUSTOM_USA_DATA_DIR + "icct/aviation_demand.csv",
     output:
         statewise_output="plots/results/passengers_vs_consumption.csv",
         merged_data="plots/results/merged_airports.csv",
@@ -80,13 +78,13 @@ rule process_airport_data:
 
 rule generate_aviation_scenario:
     input:
-        aviation_demand_data="data/icct/US Aviation Fuel Demand Projection_NP_0.1.xls",
+        aviation_demand_data=CUSTOM_USA_DATA_DIR + "icct/US Aviation Fuel Demand Projection_NP_0.1.xls",
     output:
-        scenario_df="data/icct/aviation_demand.csv",
+        scenario_df=CUSTOM_USA_DATA_DIR + "icct/aviation_demand.csv",
     resources:
         mem_mb=3000,
     script:
-        "scripts/generate_aviation_scenarios.py"
+        "scripts/custom/generate_aviation_scenarios.py"
 
 
 if config["custom_data"]["airports"]:
@@ -110,7 +108,7 @@ if config["countries"] == ["US"] and config["retrieve_from_gdrive"].get(
         resources:
             mem_mb=16000,
         script:
-            "scripts/retrieve_cutouts.py"
+            "scripts/custom/retrieve_cutouts.py"
 
 
 # retrieving precomputed osm/raw data and bypassing download_osm_data rule
@@ -121,12 +119,14 @@ if config["countries"] == ["US"] and config["retrieve_from_gdrive"].get(
     rule retrieve_osm_raw:
         params:
             destination="resources/" + RDIR,
-        input:
-            **{k: v for k, v in rules.download_osm_data.input.items()},
         output:
-            **{k: v for k, v in rules.download_osm_data.output.items()},
+            cables="resources/" + RDIR + "osm/raw/all_raw_cables.geojson",
+            generators="resources/" + RDIR + "osm/raw/all_raw_generators.geojson",
+            generators_csv="resources/" + RDIR + "osm/raw/all_raw_generators.csv",
+            lines="resources/" + RDIR + "osm/raw/all_raw_lines.geojson",
+            substations="resources/" + RDIR + "osm/raw/all_raw_substations.geojson",
         script:
-            "scripts/retrieve_osm_raw.py"
+            "scripts/custom/retrieve_osm_raw.py"
 
     ruleorder: retrieve_osm_raw > download_osm_data
 
@@ -140,11 +140,22 @@ if config["countries"] == ["US"] and config["retrieve_from_gdrive"].get(
         params:
             destination="resources/" + RDIR,
         input:
-            **{k: v for k, v in rules.clean_osm_data.input.items()},
+            cables="resources/" + RDIR + "osm/raw/all_raw_cables.geojson",
+            generators="resources/" + RDIR + "osm/raw/all_raw_generators.geojson",
+            lines="resources/" + RDIR + "osm/raw/all_raw_lines.geojson",
+            substations="resources/" + RDIR + "osm/raw/all_raw_substations.geojson",
+            country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
+            offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
+            extended_country_shape="resources/"
+            + RDIR
+            + "shapes/extended_country_shape.geojson",
         output:
-            **{k: v for k, v in rules.clean_osm_data.output.items()},
+            generators="resources/" + RDIR + "osm/clean/all_clean_generators.geojson",
+            generators_csv="resources/" + RDIR + "osm/clean/all_clean_generators.csv",
+            lines="resources/" + RDIR + "osm/clean/all_clean_lines.geojson",
+            substations="resources/" + RDIR + "osm/clean/all_clean_substations.geojson",
         script:
-            "scripts/retrieve_osm_clean.py"
+            "scripts/custom/retrieve_osm_clean.py"
 
     ruleorder: retrieve_osm_clean > clean_osm_data
 
@@ -157,12 +168,17 @@ if config["countries"] == ["US"] and config["retrieve_from_gdrive"].get(
     rule retrieve_shapes:
         params:
             destination="resources/" + RDIR,
-        input:
-            **{k: v for k, v in rules.build_shapes.input.items()},
         output:
-            **{k: v for k, v in rules.build_shapes.output.items()},
+            country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
+            offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
+            extended_country_shape="resources/"
+            + RDIR
+            + "shapes/extended_country_shape.geojson",
+            gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
+            subregion_shapes="resources/" + RDIR + "shapes/subregion_shapes.geojson",
+            subregion_offshore="resources/" + RDIR + "shapes/subregion_offshore.geojson",
         script:
-            "scripts/retrieve_shapes.py"
+            "scripts/custom/retrieve_shapes.py"
 
     ruleorder: retrieve_shapes > build_shapes
 
@@ -176,11 +192,29 @@ if config["countries"] == ["US"] and config["retrieve_from_gdrive"].get(
         params:
             destination="resources/" + RDIR,
         input:
-            **{k: v for k, v in rules.build_osm_network.input.items()},
+            generators="resources/" + RDIR + "osm/clean/all_clean_generators.geojson",
+            lines="resources/" + RDIR + "osm/clean/all_clean_lines.geojson",
+            substations="resources/" + RDIR + "osm/clean/all_clean_substations.geojson",
+            country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
         output:
-            **{k: v for k, v in rules.build_osm_network.output.items()},
+            lines="resources/" + RDIR + "base_network/all_lines_build_network.csv",
+            converters="resources/" + RDIR + "base_network/all_converters_build_network.csv",
+            transformers="resources/"
+            + RDIR
+            + "base_network/all_transformers_build_network.csv",
+            substations="resources/" + RDIR + "base_network/all_buses_build_network.csv",
+            lines_geo="resources/" + RDIR + "base_network/all_lines_build_network.geojson",
+            converters_geo="resources/"
+            + RDIR
+            + "base_network/all_converters_build_network.geojson",
+            transformers_geo="resources/"
+            + RDIR
+            + "base_network/all_transformers_build_network.geojson",
+            substations_geo="resources/"
+            + RDIR
+            + "base_network/all_buses_build_network.geojson",
         script:
-            "scripts/retrieve_osm_network.py"
+            "scripts/custom/retrieve_osm_network.py"
 
     ruleorder: retrieve_osm_network > build_osm_network
 
@@ -192,11 +226,20 @@ if config["countries"] == ["US"] and config["retrieve_from_gdrive"].get(
 
     rule retrieve_base_network:
         input:
-            **{k: v for k, v in rules.base_network.input.items()},
+            osm_buses="resources/" + RDIR + "base_network/all_buses_build_network.csv",
+            osm_lines="resources/" + RDIR + "base_network/all_lines_build_network.csv",
+            osm_converters="resources/"
+            + RDIR
+            + "base_network/all_converters_build_network.csv",
+            osm_transformers="resources/"
+            + RDIR
+            + "base_network/all_transformers_build_network.csv",
+            country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
+            offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
         output:
             PYPSA_EARTH_DIR + "networks/" + RDIR + "base.nc",
         script:
-            "scripts/retrieve_base_network.py"
+            "scripts/custom/retrieve_base_network.py"
 
     ruleorder: retrieve_base_network > base_network
 
@@ -218,62 +261,70 @@ if config["countries"] == ["US"] and config["retrieve_from_gdrive"].get(
                 file=renewable_profiles_outputs(),
             ),
         script:
-            "scripts/retrieve_renewable_profiles.py"
+            "scripts/custom/retrieve_renewable_profiles.py"
 
     ruleorder: retrieve_renewable_profiles > build_renewable_profiles
 
 
 if config["countries"] == ["US"]:
 
-    use rule build_powerplants from pypsa_earth with:
+    use rule build_powerplants from pypsa_earth as build_powerplants_custom with:
         input:
-            **{
-                k: v
-                for k, v in rules.build_powerplants.input.items()
-                if k != "custom_powerplants"
-            },
-            custom_powerplants="data/custom_powerplants.csv",
+            base_network="networks/" + RDIR + "base.nc",
+            pm_config="configs/powerplantmatching_config.yaml",
+            custom_powerplants=CUSTOM_USA_DATA_DIR + "custom_powerplants.csv",
+            osm_powerplants="resources/" + RDIR + "osm/clean/all_clean_generators.csv",
+            #gadm_shapes="resources/" + RDIR + "shapes/MAR2.geojson",
+            #using this line instead of the following will test updated gadm shapes for MA.
+            #To use: downlaod file from the google drive and place it in resources/" + RDIR + "shapes/
+            #Link: https://drive.google.com/drive/u/1/folders/1dkW1wKBWvSY4i-XEuQFFBj242p0VdUlM
+            gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
 
+    ruleorder: build_powerplants_custom > build_powerplants
 
 if config["countries"] == ["US"]:
 
-    use rule build_demand_profiles from pypsa_earth with:
+    use rule build_demand_profiles from pypsa_earth as build_demand_profiles_custom with:
         input:
-            **{
-                k: v
-                for k, v in rules.build_demand_profiles.input.items()
-                if k != "load"
-            },
-            ssp2_dummy_input=temp("ssp2_dummy_output.log"),
+            base_network="networks/" + RDIR + "base.nc",
+            regions="resources/" + RDIR + "bus_regions/regions_onshore.geojson",
+            ssp2_dummy_input="ssp2_dummy_output.log",
             load=[PYPSA_EARTH_DIR + "data/ssp2-2.6/2030/era5_2013/NorthAmerica.csv"],
+            #gadm_shapes="resources/" + RDIR + "shapes/MAR2.geojson",
+            #using this line instead of the following will test updated gadm shapes for MA.
+            #To use: downlaod file from the google drive and place it in resources/" + RDIR + "shapes/
+            #Link: https://drive.google.com/drive/u/1/folders/1dkW1wKBWvSY4i-XEuQFFBj242p0VdUlM
+            gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
+
+    ruleorder: build_demand_profiles_from_eia > build_demand_profiles_custom > build_demand_profiles
 
     rule retrieve_ssp2:
         params:
             nc_path=PYPSA_EARTH_DIR + "data/ssp2-2.6/2030/era5_2013/NorthAmerica.nc",
         input:
-            old_path="data/NorthAmerica.csv",
+            old_path=CUSTOM_USA_DATA_DIR + "NorthAmerica.csv",
         output:
             ssp2_northamerica=PYPSA_EARTH_DIR
             + "data/ssp2-2.6/2030/era5_2013/NorthAmerica.csv",
             ssp2_dummy_output=temp("ssp2_dummy_output.log"),
         script:
-            "scripts/retrieve_ssp2.py"
+            "scripts/custom/retrieve_ssp2.py"
 
 
 if config["countries"] == ["US"]:
 
     rule prepare_growth_rate_scenarios:
         input:
-            source_growth_factors=lambda wildcards: f"data/US_growth_rates/{config['demand_projection']['scenario']}/growth_factors_cagr.csv",
-            source_industry_growth=lambda wildcards: f"data/US_growth_rates/{config['demand_projection']['scenario']}/industry_growth_cagr.csv",
+            source_growth_factors=lambda wildcards: CUSTOM_USA_DATA_DIR + "US_growth_rates/{config['demand_projection']['scenario']}/growth_factors_cagr.csv",
+            source_industry_growth=lambda wildcards: CUSTOM_USA_DATA_DIR + "US_growth_rates/{config['demand_projection']['scenario']}/industry_growth_cagr.csv",
         output:
             growth_factors_cagr=PYPSA_EARTH_DIR + "data/demand/growth_factors_cagr.csv",
             industry_growth_cagr=PYPSA_EARTH_DIR
             + "data/demand/industry_growth_cagr.csv",
         script:
-            "scripts/prepare_growth_rate_scenarios.py"
+            "scripts/custom/prepare_growth_rate_scenarios.py"
 
-    use rule prepare_energy_totals from pypsa_earth with:
+    use rule prepare_energy_totals from pypsa_earth as prepare_energy_totals_custom with:
         params:
             countries=config["countries"],
             base_year=config["demand_data"]["base_year"],
@@ -286,7 +337,7 @@ if config["countries"] == ["US"]:
 
     rule modify_aviation_demand:
         input:
-            aviation_demand="data/icct/aviation_demand.csv",
+            aviation_demand=CUSTOM_USA_DATA_DIR + "icct/aviation_demand.csv",
             energy_totals=PYPSA_EARTH_DIR
             + "resources/"
             + SECDIR
@@ -297,61 +348,63 @@ if config["countries"] == ["US"]:
             + SECDIR
             + "energy_totals_{demand}_{planning_horizons}.csv",
         script:
-            "scripts/modify_aviation_demand.py"
+            "scripts/custom/modify_aviation_demand.py"
+
+    ruleorder: modify_aviation_demand > prepare_energy_totals_custom > prepare_energy_totals
 
 
 if config["demand_distribution"]["enable"]:
 
     rule preprocess_demand_data:
         input:
-            demand_utility_path="data/demand_data/table_10_EIA_utility_sales.xlsx",
+            demand_utility_path=CUSTOM_USA_DATA_DIR + "demand_data/table_10_EIA_utility_sales.xlsx",
             country_gadm_path=PYPSA_EARTH_DIR
             + "resources/"
             + RDIR
             + "shapes/country_shapes.geojson",
-            erst_path="data/demand_data/Electric_Retail_Service_Territories.geojson",
-            gadm_usa_path="data/demand_data/gadm41_USA_1.json",
-            eia_per_capita_path="data/demand_data/use_es_capita.xlsx",
-            additional_demand_path="data/demand_data/HS861_2010-.xlsx",
+            erst_path=CUSTOM_USA_DATA_DIR + "demand_data/Electric_Retail_Service_Territories.geojson",
+            gadm_usa_path=CUSTOM_USA_DATA_DIR + "demand_data/gadm41_USA_1.json",
+            eia_per_capita_path=CUSTOM_USA_DATA_DIR + "demand_data/use_es_capita.xlsx",
+            additional_demand_path=CUSTOM_USA_DATA_DIR + "demand_data/HS861_2010-.xlsx",
         output:
-            utility_demand_path="data/demand_data/ERST_mapped_demand_centroids.geojson",
+            utility_demand_path=CUSTOM_USA_DATA_DIR + "demand_data/ERST_mapped_demand_centroids.geojson",
         script:
-            "scripts/preprocess_demand_data.py"
+            "scripts/custom/preprocess_demand_data.py"
 
     rule retrieve_demand_data:
         output:
-            "data/demand_data/table_10_EIA_utility_sales.xlsx",
-            "data/demand_data/Electric_Retail_Service_Territories.geojson",
-            "data/demand_data/gadm41_USA_1.json",
-            "data/demand_data/use_es_capita.xlsx",
-            "data/demand_data/HS861_2010-.xlsx",
-            "data/demand_data/Balancing_Authorities.geojson",
-            "data/demand_data/EIA930_2023_Jan_Jun_opt.csv",
-            "data/demand_data/EIA930_2023_Jul_Dec_opt.csv",
+            CUSTOM_USA_DATA_DIR + "demand_data/table_10_EIA_utility_sales.xlsx",
+            CUSTOM_USA_DATA_DIR + "demand_data/Electric_Retail_Service_Territories.geojson",
+            CUSTOM_USA_DATA_DIR + "demand_data/gadm41_USA_1.json",
+            CUSTOM_USA_DATA_DIR + "demand_data/use_es_capita.xlsx",
+            CUSTOM_USA_DATA_DIR + "demand_data/HS861_2010-.xlsx",
+            CUSTOM_USA_DATA_DIR + "demand_data/Balancing_Authorities.geojson",
+            CUSTOM_USA_DATA_DIR + "demand_data/EIA930_2023_Jan_Jun_opt.csv",
+            CUSTOM_USA_DATA_DIR + "demand_data/EIA930_2023_Jul_Dec_opt.csv",
         script:
-            "scripts/retrieve_demand_data.py"
+            "scripts/custom/retrieve_demand_data.py"
 
     rule build_demand_profiles_from_eia:
         params:
-            demand_projections="data/demand_projections/",
+            demand_projections=CUSTOM_USA_DATA_DIR + "demand_projections/",
             demand_horizon=config["demand_projection"]["planning_horizon"],
             demand_scenario=config["demand_projection"]["scenario"],
-            data_center_profiles="data/data_center_profiles/",
+            data_center_profiles=CUSTOM_USA_DATA_DIR + "data_center_profiles/",
             geo_crs=config["crs"]["geo_crs"],
         input:
-            BA_demand_path1="data/demand_data/EIA930_2023_Jan_Jun_opt.csv",
-            BA_demand_path2="data/demand_data/EIA930_2023_Jul_Dec_opt.csv",
-            BA_shape_path="data/demand_data/Balancing_Authorities.geojson",
-            utility_demand_path="data/demand_data/ERST_mapped_demand_centroids.geojson",
+            BA_demand_path1=CUSTOM_USA_DATA_DIR + "demand_data/EIA930_2023_Jan_Jun_opt.csv",
+            BA_demand_path2=CUSTOM_USA_DATA_DIR + "demand_data/EIA930_2023_Jul_Dec_opt.csv",
+            BA_shape_path=CUSTOM_USA_DATA_DIR + "demand_data/Balancing_Authorities.geojson",
+            utility_demand_path=CUSTOM_USA_DATA_DIR + "demand_data/ERST_mapped_demand_centroids.geojson",
             base_network=PYPSA_EARTH_DIR + "networks/" + RDIR + "base.nc",
-            gadm_shape="data/demand_data/gadm41_USA_1.json",
+            gadm_shape=CUSTOM_USA_DATA_DIR + "demand_data/gadm41_USA_1.json",
         output:
             demand_profile_path=PYPSA_EARTH_DIR
             + "resources/"
             + RDIR
             + "demand_profiles.csv",
         script:
-            "scripts/build_demand_profiles_from_eia.py"
+            "scripts/custom/build_demand_profiles_from_eia.py"
 
     ruleorder: build_demand_profiles_from_eia > build_demand_profiles
 
@@ -367,14 +420,14 @@ if config["saf_mandate"]["ekerosene_split"]:
             + "results/"
             + SECDIR
             + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}.nc",
-            saf_scenarios="data/saf_blending_rates/saf_scenarios.csv",
+            saf_scenarios=CUSTOM_USA_DATA_DIR + "saf_blending_rates/saf_scenarios.csv",
         output:
             modified_network=PYPSA_EARTH_DIR
             + "results/"
             + SECDIR
             + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_saf.nc",
         script:
-            "scripts/set_saf_mandate.py"
+            "scripts/custom/set_saf_mandate.py"
 
 
 saf_suffix = "_saf" if config["saf_mandate"]["ekerosene_split"] else ""
@@ -393,15 +446,14 @@ if config["custom_industry"]["enable"]:
             alternative_clustering=config["cluster_options"]["alternative_clustering"],
             industry_database=config["custom_data"]["industry_database"],
         input:
-            uscity_map="data/industry_data/uscities.csv",
-            ethanol_plants="data/industry_data/ethanolcapacity.xlsx",
-            ammonia_plants="data/industry_data/ammoniacapacity.xlsx",
+            uscity_map=CUSTOM_USA_DATA_DIR + "industry_data/uscities.csv",
+            ethanol_plants=CUSTOM_USA_DATA_DIR + "industry_data/ethanolcapacity.xlsx",
+            ammonia_plants=CUSTOM_USA_DATA_DIR + "industry_data/ammoniacapacity.xlsx",
             shapes_path=PYPSA_EARTH_DIR
             + "resources/"
             + RDIR
             + "bus_regions/regions_onshore_elec_s{simpl}_{clusters}.geojson",
-            pypsa_earth_industrial_database=PYPSA_EARTH_DIR
-            + "data/industrial_database.csv",
+            pypsa_earth_industrial_database="resources/industrial_database.csv",
             industry_growth_cagr=PYPSA_EARTH_DIR
             + "data/demand/industry_growth_cagr.csv",
         output:
@@ -413,7 +465,8 @@ if config["custom_industry"]["enable"]:
         resources:
             mem_mb=2000,
         script:
-            "scripts/build_custom_industry_demand.py"
+            "scripts/custom/build_custom_industry_demand.py"
+
 
     rule add_custom_industry:
         params:
@@ -427,7 +480,7 @@ if config["custom_industry"]["enable"]:
             grid_h2=config["custom_industry"]["grid_H2"],
             other_electricity=config["custom_industry"]["other_electricity"],
             data_centers=config["demand_projection"]["data_centers_load"],
-            data_center_profiles="data/data_center_profiles/",
+            data_center_profiles=CUSTOM_USA_DATA_DIR + "data_center_profiles/",
             dac_inputs=config["custom_industry"]["dac_inputs"],
             geo_crs=config["crs"]["geo_crs"],
             buffer_co2_stored=config["custom_industry"]["buffer_co2_stored"],
@@ -446,49 +499,57 @@ if config["custom_industry"]["enable"]:
             + "resources/"
             + RDIR
             + "costs_{planning_horizons}.csv",
-            gadm_shape="data/demand_data/gadm41_USA_1.json",
+            gadm_shape=CUSTOM_USA_DATA_DIR + "demand_data/gadm41_USA_1.json",
         output:
             modified_network=PYPSA_EARTH_DIR
             + "results/"
             + SECDIR
             + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_custom_industry.nc",
         script:
-            "scripts/add_custom_industry.py"
+            "scripts/custom/add_custom_industry.py"
 
-    use rule add_export from pypsa_earth with:
+    use rule add_export from pypsa_earth as add_export_custom with:
         input:
-            **{k: v for k, v in rules.add_export.input.items() if k != "network"},
+            export_ports="resources/" + SECDIR + "export_ports.csv",
+            costs="resources/" + RDIR + "costs_{planning_horizons}_sec.csv",
+            ship_profile="resources/" + SECDIR + "ship_profile_{h2export}TWh.csv",
             network=PYPSA_EARTH_DIR
-            + "results/"
-            + SECDIR
-            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_custom_industry.nc",
+                + "results/"
+                + SECDIR
+                + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_custom_industry.nc",
+            shapes_path="resources/"
+            + RDIR
+            + "bus_regions/regions_onshore_elec_s{simpl}_{clusters}.geojson",
 
+    ruleorder: add_export_custom > add_export
 
 if config["foresight"] == "overnight":
 
-    use rule solve_sector_network from pypsa_earth with:
+    use rule solve_sector_network from pypsa_earth as solve_sector_network_custom with:
         input:
-            **{
-                k: v
-                for k, v in rules.solve_sector_network.input.items()
-                if k != "overrides"
-            },
-            overrides="data/override_component_attrs",
+            # network=RESDIR
+            # + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}.nc",
+            network=RESDIR
+            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export.nc",
+            costs="resources/" + RDIR + "costs_{planning_horizons}_sec.csv",
+            configs=PYPSA_EARTH_DIR + SDIR + "configs/config.yaml",  # included to trigger copy_config rule
+            overrides=CUSTOM_USA_DATA_DIR + "override_component_attrs",
+            agg_p_nom_minmax=config["electricity"]["agg_p_nom_limits"]["file"],  # ensure the CSV with capacity constraints is copied into the shadow directory (needed on Windows, since shadowed scripts can’t access files outside `input`)
 
+    ruleorder: solve_sector_network_custom > solve_sector_network
 
 if config["foresight"] == "myopic":
 
-    use rule solve_network_myopic from pypsa_earth with:
+    use rule solve_network_myopic from pypsa_earth as solve_network_myopic_custom with:
         input:
-            **{
-                k: v
-                for k, v in rules.solve_network_myopic.input.items()
-                if k not in ["overrides", "network"]
-            },
-            overrides="data/override_component_attrs",
-            network=PYPSA_EARTH_DIR
-            + RESDIR
+            network=RESDIR
             + "prenetworks-brownfield/elec_s{simpl}_{clusters}_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export.nc",
+            costs="resources/" + RDIR + "costs_{planning_horizons}_sec.csv",
+            configs=PYPSA_EARTH_DIR + SDIR + "configs/config.yaml",  # included to trigger copy_config rule
+            overrides=CUSTOM_USA_DATA_DIR + "override_component_attrs",
+            agg_p_nom_minmax=config["electricity"]["agg_p_nom_limits"]["file"],  # ensure the CSV with capacity constraints is copied into the shadow directory (needed on Windows, since shadowed scripts can’t access files outside `input`)
+
+    ruleorder: solve_network_myopic_custom > solve_network_myopic
 
     rule solve_custom_network_myopic:
         params:
@@ -505,13 +566,13 @@ if config["foresight"] == "myopic":
             distance_crs="EPSG:3857",
             grid_region_field="Grid Region",
         input:
-            ces_path="data/current_electricity_state_policies/clean_targets.csv",
-            res_path="data/current_electricity_state_policies/res_targets.csv",
-            production_tax_credits="data/tax_credits/production_tax_credits.csv",
-            investment_tax_credits="data/tax_credits/investment_tax_credits.csv",
-            gadm_shape_path="data/demand_data/gadm41_USA_1.json",
-            grid_regions_shape_path="data/temporal_matching/needs_grid_regions_aggregated.geojson",
-            overrides="data/override_component_attrs",
+            ces_path=CUSTOM_USA_DATA_DIR + "current_electricity_state_policies/clean_targets.csv",
+            res_path=CUSTOM_USA_DATA_DIR + "current_electricity_state_policies/res_targets.csv",
+            production_tax_credits=CUSTOM_USA_DATA_DIR + "tax_credits/production_tax_credits.csv",
+            investment_tax_credits=CUSTOM_USA_DATA_DIR + "tax_credits/investment_tax_credits.csv",
+            gadm_shape_path=CUSTOM_USA_DATA_DIR + "demand_data/gadm41_USA_1.json",
+            grid_regions_shape_path=CUSTOM_USA_DATA_DIR + "temporal_matching/needs_grid_regions_aggregated.geojson",
+            overrides=CUSTOM_USA_DATA_DIR + "override_component_attrs",
             network=PYPSA_EARTH_DIR
             + RESDIR
             + "prenetworks-brownfield/elec_s{simpl}_{clusters}_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export.nc",
@@ -548,25 +609,27 @@ if config["foresight"] == "myopic":
                 + "benchmarks/solve_network/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export"
             )
         script:
-            "scripts/solve_custom_sector_network.py"
+            "scripts/custom/solve_custom_sector_network.py"
 
-    ruleorder: solve_custom_network_myopic > solve_network_myopic
+    ruleorder: solve_custom_network_myopic > solve_network_myopic_custom > solve_network_myopic
 
 
-if config["demand_distribution"]["set_custom_distribution_fees"]:
+if config["demand_distribution"]["set_distribution_fees"]:
 
-    use rule prepare_sector_network from pypsa_earth with:
+    use rule prepare_sector_network from pypsa_earth as prepare_sector_network_custom with:
         output:
             PYPSA_EARTH_DIR
-            + RESDIR
-            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_distribution_fees.nc",
+                + RESDIR
+                + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_distribution_fees.nc",
 
-    rule set_custom_distribution_fees:
+    ruleorder: prepare_sector_network_custom > prepare_sector_network
+
+    rule set_distribution_fees:
         params:
             distance_crs=config["crs"]["distance_crs"],
         input:
-            shape_path="data/EIA_market_module_regions/EMM_regions.geojson",
-            regional_fees_path="data/EIA_market_module_regions/regional_fees.csv",
+            shape_path=CUSTOM_USA_DATA_DIR + "EIA_market_module_regions/EMM_regions.geojson",
+            regional_fees_path=CUSTOM_USA_DATA_DIR + "EIA_market_module_regions/regional_fees.csv",
             network=PYPSA_EARTH_DIR
             + RESDIR
             + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_distribution_fees.nc",
@@ -575,8 +638,10 @@ if config["demand_distribution"]["set_custom_distribution_fees"]:
             + RESDIR
             + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}.nc",
         script:
-            "scripts/set_custom_distribution_fees.py"
+            "scripts/custom/set_distribution_fees.py"
 
+    ruleorder: set_distribution_fees > prepare_sector_network
+    ruleorder: prepare_sector_network_custom > prepare_sector_network
 
 if config["foresight"] == "overnight" and config["state_policy"] != "off":
 
@@ -590,13 +655,13 @@ if config["foresight"] == "overnight" and config["state_policy"] != "off":
             distance_crs="EPSG:3857",
             grid_region_field="Grid Region",
         input:
-            ces_path="data/current_electricity_state_policies/clean_targets.csv",
-            res_path="data/current_electricity_state_policies/res_targets.csv",
-            production_tax_credits="data/tax_credits/production_tax_credits.csv",
-            investment_tax_credits="data/tax_credits/investment_tax_credits.csv",
-            gadm_shape_path="data/demand_data/gadm41_USA_1.json",
-            grid_regions_shape_path="data/temporal_matching/needs_grid_regions_aggregated.geojson",
-            overrides="data/override_component_attrs",
+            ces_path=CUSTOM_USA_DATA_DIR + "current_electricity_state_policies/clean_targets.csv",
+            res_path=CUSTOM_USA_DATA_DIR + "current_electricity_state_policies/res_targets.csv",
+            production_tax_credits=CUSTOM_USA_DATA_DIR + "tax_credits/production_tax_credits.csv",
+            investment_tax_credits=CUSTOM_USA_DATA_DIR + "tax_credits/investment_tax_credits.csv",
+            gadm_shape_path=CUSTOM_USA_DATA_DIR + "demand_data/gadm41_USA_1.json",
+            grid_regions_shape_path=CUSTOM_USA_DATA_DIR + "temporal_matching/needs_grid_regions_aggregated.geojson",
+            overrides=CUSTOM_USA_DATA_DIR + "override_component_attrs",
             network=PYPSA_EARTH_DIR
             + RESDIR
             + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export.nc",
@@ -631,7 +696,7 @@ if config["foresight"] == "overnight" and config["state_policy"] != "off":
                 + "benchmarks/solve_network/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export"
             )
         script:
-            "scripts/solve_custom_sector_network.py"
+            "scripts/custom/solve_custom_sector_network.py"
 
     ruleorder: solve_custom_sector_network > solve_sector_network
 
@@ -650,12 +715,12 @@ rule test_modify_prenetwork:
     resources:
         mem_mb=16000,
     script:
-        "scripts/test_modify_network.py"
+        "scripts/custom/test_modify_network.py"
 
 
-# use rule prepare_network from pypsa_earth with:
+# use rule prepare_network with:
 #    input:
 #        **{k: v for k, v in rules.prepare_network.input.items() if k != "tech_costs"},
-# use rule add_extra_components from pypsa_earth with:
+# use rule add_extra_components with:
 #    input:
 #        **{k: v for k, v in rules.add_extra_components.input.items()},

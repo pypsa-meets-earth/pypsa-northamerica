@@ -14,9 +14,6 @@ from shutil import copyfile, move
 from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
 
 
-include: "workflow/custom.smk"
-
-
 from _helpers import (
     create_country_list,
     get_last_commit_message,
@@ -43,7 +40,7 @@ configfile: "config.default.yaml"
 configfile: "configs/bundle_config.yaml"
 configfile: "configs/powerplantmatching_config.yaml"
 configfile: "config.yaml"
-
+configfile: "configs/custom/config.main.yaml"
 
 check_config_version(config=config)
 
