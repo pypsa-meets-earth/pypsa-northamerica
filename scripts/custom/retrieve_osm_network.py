@@ -46,7 +46,7 @@ if __name__ == "__main__":
     destination = os.path.join(PYPSA_EARTH_DIR, snakemake.params.destination)
 
     # download base_network/
-    if "zenodo" in  config_osm_network["urls"]:
+    if "zenodo" in config_osm_network["urls"]:
         downloaded = download_and_unzip_zenodo(
             config_osm_network,
             destination,

@@ -150,6 +150,7 @@ if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
 
     ruleorder: retrieve_osm_clean > clean_osm_data
 
+
 # retrieving shapes data and bypassing build_shapes rule
 if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
     "shapes", False
@@ -191,18 +192,6 @@ if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
             + RDIR
             + "base_network/all_transformers_build_network.csv",
             substations="resources/" + RDIR + "base_network/all_buses_build_network.csv",
-            lines_geo="resources/"
-            + RDIR
-            + "base_network/all_lines_build_network.geojson",
-            converters_geo="resources/"
-            + RDIR
-            + "base_network/all_converters_build_network.geojson",
-            transformers_geo="resources/"
-            + RDIR
-            + "base_network/all_transformers_build_network.geojson",
-            substations_geo="resources/"
-            + RDIR
-            + "base_network/all_buses_build_network.geojson",
         script:
             "../scripts/custom/retrieve_osm_network.py"
 

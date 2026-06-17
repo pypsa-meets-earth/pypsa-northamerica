@@ -43,7 +43,7 @@ if __name__ == "__main__":
     config_demand_data = config["custom_databundles"]["bundle_demand_data_USA"]
 
     # destination for demand data
-    destination = "data"
+    destination = config_demand_data.get("destination", "data")
 
     # download demand data
     if "zenodo" in config_demand_data["urls"]:

@@ -168,6 +168,6 @@ custom_databundles:
   bundle_demand_data_USA:
     countries: [US]
     category: data_demand_data
-    destination: "data"
+    destination: "data/custom/usa"
     urls:
       zenodo: https://zenodo.org/api/records/18487278/files/demand_data.zip/content
