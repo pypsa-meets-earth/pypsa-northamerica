@@ -17,7 +17,7 @@ sys.path.append(
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-from _helpers import prepare_costs
+from process_cost_data import prepare_costs
 from build_demand_profiles_from_eia import read_data_center_profiles
 from prepare_sector_network import normalize_by_country, p_set_from_scaling
 
@@ -1359,8 +1359,13 @@ if __name__ == "__main__":
         snakemake.params.costs["output_currency"],
         snakemake.params.costs["fill_values"],
         Nyears,
-        snakemake.params.costs["default_USD_to_EUR"],
-        reference_year=snakemake.config["costs"].get("reference_year", 2020),
+        default_exchange_rate=snakemake.params.costs.get("default_exchange_rate"),
+        future_exchange_rate_strategy=snakemake.params.costs.get(
+            "future_exchange_rate_strategy", "latest"
+        ),
+        custom_future_exchange_rate=snakemake.params.costs.get(
+            "custom_future_exchange_rate"
+        ),
     )
 
     # add ammonia industry
