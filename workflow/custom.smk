@@ -274,10 +274,6 @@ if config["countries"] == ["US"]:
             pm_config="configs/powerplantmatching_config.yaml",
             custom_powerplants=CUSTOM_USA_DATA_DIR + "custom_powerplants.csv",
             osm_powerplants="resources/" + RDIR + "osm/clean/all_clean_generators.csv",
-            #gadm_shapes="resources/" + RDIR + "shapes/MAR2.geojson",
-            #using this line instead of the following will test updated gadm shapes for MA.
-            #To use: downlaod file from the google drive and place it in resources/" + RDIR + "shapes/
-            #Link: https://drive.google.com/drive/u/1/folders/1dkW1wKBWvSY4i-XEuQFFBj242p0VdUlM
             gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
 
     ruleorder: build_powerplants_custom > build_powerplants
@@ -290,10 +286,6 @@ if config["countries"] == ["US"]:
             regions="resources/" + RDIR + "bus_regions/regions_onshore.geojson",
             ssp2_dummy_input="ssp2_dummy_output.log",
             load=[PYPSA_EARTH_DIR + "data/ssp2-2.6/2030/era5_2013/NorthAmerica.csv"],
-            #gadm_shapes="resources/" + RDIR + "shapes/MAR2.geojson",
-            #using this line instead of the following will test updated gadm shapes for MA.
-            #To use: downlaod file from the google drive and place it in resources/" + RDIR + "shapes/
-            #Link: https://drive.google.com/drive/u/1/folders/1dkW1wKBWvSY4i-XEuQFFBj242p0VdUlM
             gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
 
     ruleorder: build_demand_profiles_from_eia > build_demand_profiles_custom > build_demand_profiles
