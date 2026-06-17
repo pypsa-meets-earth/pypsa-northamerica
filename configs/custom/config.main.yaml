@@ -41,6 +41,14 @@ costs:
     CCGT: 45
     OCGT: 45
 
+cluster_options:
+  aggregation_strategies:
+    lines:
+      tag_type: first
+      tag_frequency: first
+      underground: any
+      under_construction: any
+
 export:
   endogenous: false # If true, the export demand is endogenously determined by the model
   h2export: [0] # Yearly export demand in TWh. Only considered, if ["export"]["endogenous"] is set to false
