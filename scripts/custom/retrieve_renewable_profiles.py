@@ -19,6 +19,7 @@ from scripts.custom._helper import (
     configure_logging,
     create_logger,
     download_and_unzip_gdrive,
+    download_and_unzip_zenodo,
     mock_snakemake,
     update_config_from_wildcards,
 )
@@ -49,10 +50,22 @@ if __name__ == "__main__":
     # url for alternative or voronoi clustering
     if snakemake.params.alternative_clustering:
         url = config_renewable_profiles["urls"]["alternative_clustering"]
+    elif "zenodo" in config_renewable_profiles["urls"]:
+        url = config_renewable_profiles["urls"]["zenodo"]
     else:
         url = config_renewable_profiles["urls"]["voronoi_clustering"]
 
-    # download base_network/
-    downloaded = download_and_unzip_gdrive(
-        config_renewable_profiles, destination=destination, logger=logger, url=url
-    )
+    if "zenodo" in config_renewable_profiles["urls"]:
+        downloaded = download_and_unzip_zenodo(
+            config_renewable_profiles,
+            destination,
+            logger,
+            url=url,
+        )
+    else:
+        downloaded = download_and_unzip_gdrive(
+            config_renewable_profiles,
+            destination,
+            logger,
+            url=url,
+        )

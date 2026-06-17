@@ -19,6 +19,7 @@ from scripts.custom._helper import (
     configure_logging,
     create_logger,
     download_and_unzip_gdrive,
+    download_and_unzip_zenodo,
     mock_snakemake,
     update_config_from_wildcards,
 )

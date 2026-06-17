@@ -19,6 +19,7 @@ from scripts.custom._helper import (
     configure_logging,
     create_logger,
     download_and_unzip_gdrive,
+    download_and_unzip_zenodo,
     mock_snakemake,
     update_config_from_wildcards,
 )
@@ -45,6 +46,15 @@ if __name__ == "__main__":
     destination = "data"
 
     # download demand data
-    downloaded = download_and_unzip_gdrive(
-        config_demand_data, destination=destination, logger=logger
-    )
+    if "zenodo" in config_demand_data["urls"]:
+        downloaded = download_and_unzip_zenodo(
+            config_demand_data,
+            destination,
+            logger,
+        )
+    else:
+        downloaded = download_and_unzip_gdrive(
+            config_demand_data,
+            destination,
+            logger,
+        )

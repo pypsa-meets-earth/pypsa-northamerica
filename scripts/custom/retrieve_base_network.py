@@ -18,6 +18,7 @@ from scripts.custom._helper import (
     configure_logging,
     create_logger,
     download_and_unzip_gdrive,
+    download_and_unzip_zenodo,
     mock_snakemake,
     update_config_from_wildcards,
 )
@@ -44,6 +45,16 @@ if __name__ == "__main__":
     destination = os.path.dirname(snakemake.output[0])
 
     # download base.nc
-    downloaded = download_and_unzip_gdrive(
-        config_base_network, destination=destination, logger=logger
-    )
+    if "zenodo" in config_base_network["urls"]:
+        downloaded = download_and_unzip_zenodo(
+            config_base_network,
+            destination,
+            logger,
+        )
+    else:
+        downloaded = download_and_unzip_gdrive(
+            config_base_network,
+            destination,
+            logger,
+        )
+

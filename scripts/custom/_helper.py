@@ -323,6 +323,37 @@ def download_and_unzip_gdrive(
         return False
 
 
+def download_and_unzip_zenodo(
+    config, destination, logger, disable_progress=False, url=None
+):
+    import requests
+
+    resource = config["category"]
+    file_path = os.path.join(PYPSA_EARTH_DIR, f"tempfile_{resource}.zip")
+
+    if url is None:
+        url = config["urls"]["zenodo"]
+
+    Path(file_path).unlink(missing_ok=True)
+
+    response = requests.get(url, stream=True, timeout=300)
+    response.raise_for_status()
+
+    with open(file_path, "wb") as f:
+        for chunk in response.iter_content(chunk_size=1024 * 1024):
+            if chunk:
+                f.write(chunk)
+
+    with ZipFile(file_path, "r") as zipObj:
+        zipObj.extractall(path=destination)
+
+    Path(file_path).unlink(missing_ok=True)
+
+    logger.info(f"Download resource '{resource}' from Zenodo '{url}'.")
+
+    return True
+
+
 def osm_raw_outputs():
     outputs = [
         "osm/raw/all_raw_cables.geojson",

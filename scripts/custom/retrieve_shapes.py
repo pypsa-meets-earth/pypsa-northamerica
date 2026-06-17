@@ -21,6 +21,7 @@ from scripts.custom._helper import (
     configure_logging,
     create_logger,
     download_and_unzip_gdrive,
+    download_and_unzip_zenodo,
     mock_snakemake,
     update_config_from_wildcards,
 )
@@ -47,6 +48,15 @@ if __name__ == "__main__":
     destination = os.path.join(PYPSA_EARTH_DIR, snakemake.params.destination)
 
     # download shapes
-    downloaded = download_and_unzip_gdrive(
-        config_shapes, destination=destination, logger=logger
-    )
+    if "zenodo" in config_shapes["urls"]:
+        downloaded = download_and_unzip_zenodo(
+            config_shapes,
+            destination,
+            logger,
+        )
+    else:
+        downloaded = download_and_unzip_gdrive(
+            config_shapes,
+            destination,
+            logger,
+        )

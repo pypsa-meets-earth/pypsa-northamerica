@@ -23,7 +23,6 @@ from scripts.custom._helper import (
     PYPSA_EARTH_DIR,
     configure_logging,
     create_logger,
-    download_and_unzip_gdrive,
     mock_snakemake,
     update_config_from_wildcards,
 )
