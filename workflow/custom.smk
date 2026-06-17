@@ -497,7 +497,7 @@ if config["custom_industry"]["enable"]:
             + SECDIR
             + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_custom_industry.nc",
         script:
-            "../scripts/custom/add_custom_industry.py"
+            "../scripts/custom/add_industry.py"
 
     use rule add_export from pypsa_earth as add_export_custom with:
         input:
