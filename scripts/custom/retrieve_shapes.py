@@ -4,12 +4,19 @@
 
 import os
 import sys
+from pathlib import Path
 
-sys.path.append(os.path.abspath(os.path.join(__file__, "../../")))
+try:
+    repo_dir = Path(snakemake.scriptdir).resolve().parents[1]
+except NameError:
+    repo_dir = Path(__file__).resolve().parents[2]
+
+sys.path.insert(0, str(repo_dir))
+
 import warnings
 
 warnings.filterwarnings("ignore")
-from scripts._helper import (
+from scripts.custom._helper import (
     PYPSA_EARTH_DIR,
     configure_logging,
     create_logger,
