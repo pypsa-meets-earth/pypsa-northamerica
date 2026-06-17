@@ -77,10 +77,20 @@ Details (and errors introduced through this heuristic) are discussed in the pape
     for all ``scenario`` s in the configuration file
     the rule :mod:`solve_network`.
 """
+
 import logging
 import os
 import re
+import sys
 from pathlib import Path
+
+if "snakemake" in globals():
+    REPO_ROOT = Path(snakemake.scriptdir).resolve().parents[1]
+else:
+    REPO_ROOT = Path(__file__).resolve().parents[1]
+
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "custom"))
+sys.path.insert(1, str(REPO_ROOT / "scripts"))
 
 import geopandas as gpd
 import numpy as np
@@ -88,13 +98,15 @@ import pandas as pd
 import pypsa
 import xarray as xr
 from _helpers import (
-    attach_grid_region_to_buses,
     configure_logging,
     create_logger,
-    override_component_attrs,
     read_csv_nafix,
 )
-from add_electricity import load_costs
+
+from _helper import (
+    attach_grid_region_to_buses,
+)
+from process_cost_data import load_costs
 from linopy import merge
 from prepare_network import set_transmission_limit
 from pypsa.descriptors import get_switchable_as_dense as get_as_dense
@@ -103,6 +115,21 @@ from pypsa.optimization.optimize import optimize
 
 logger = create_logger(__name__)
 pypsa.pf.logger.setLevel(logging.WARNING)
+
+
+def override_component_attrs(directory):
+    """Tell PyPSA to override component attributes from CSV files."""
+    attrs = pypsa.components.component_attrs.copy()
+    directory = Path(directory)
+
+    for component in attrs:
+        filename = component.lower().replace(" ", "_") + ".csv"
+        fn = directory / filename
+
+        if fn.exists():
+            attrs[component] = pd.read_csv(fn, index_col=0, na_values="n/a")
+
+    return attrs
 
 
 def get_load_shedding_capacity(n, safety_margin=1.2):
