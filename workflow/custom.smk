@@ -411,6 +411,20 @@ if config["saf_mandate"]["ekerosene_split"]:
 saf_suffix = "_saf" if config["saf_mandate"]["ekerosene_split"] else ""
 
 
+if config["countries"] == ["US"]:
+
+    use rule retrieve_us_cities_dataset from pypsa_earth as retrieve_us_cities_dataset_custom with:
+        log:
+            "data/industry/retrieve_us_cities_dataset.log"
+
+    use rule retrieve_ammonia_dataset from pypsa_earth as retrieve_ammonia_dataset_custom with:
+        log:
+            "data/industry/retrieve_ammonia_dataset.log"
+
+    ruleorder: retrieve_us_cities_dataset_custom > retrieve_us_cities_dataset
+    ruleorder: retrieve_ammonia_dataset_custom > retrieve_ammonia_dataset
+
+
 if config["custom_industry"]["enable"]:
 
     rule build_custom_industry_demand:
