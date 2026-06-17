@@ -21,7 +21,8 @@ import geopandas as gpd
 import pandas as pd
 
 warnings.filterwarnings("ignore")
-from build_industrial_distribution_key import map_industry_to_buses
+
+from _helpers import locate_bus
 
 from scripts.custom._helper import (
     create_logger,
@@ -31,6 +32,16 @@ from scripts.custom._helper import (
 
 logger = create_logger(__name__)
 
+
+def map_industry_to_buses(df, countries, gadm_layer_id, shapes_path, gadm_clustering):
+    df = df.copy()
+    return locate_bus(
+        df,
+        countries,
+        gadm_layer_id,
+        shapes_path,
+        gadm_clustering,
+    ).set_index(f"gadm_{gadm_layer_id}")
 
 def process_uscities(uscities):
     """
