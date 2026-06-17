@@ -2,12 +2,13 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 import logging
 import os
 import sys
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 sys.path.append(os.path.abspath(os.path.join(__file__, "../../")))
 from scripts.custom._helper import mock_snakemake, update_config_from_wildcards

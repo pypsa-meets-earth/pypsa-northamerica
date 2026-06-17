@@ -42,6 +42,7 @@ configfile: "configs/powerplantmatching_config.yaml"
 configfile: "config.yaml"
 configfile: "configs/custom/config.main.yaml"
 
+
 check_config_version(config=config)
 
 config.update({"git_commit": get_last_commit_message(".")})
