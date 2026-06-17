@@ -90,6 +90,8 @@ sector:
   co2_sequestration_potential: 250 # MtCO2/a sequestration potential for US
   co2_sequestration_cost: 8 # USD/tCO2 for sequestration of CO2
   demand_projection_reference_year: 2023
+  ammonia:
+    enable: false
 
   solar_rooftop: # adds distribution side customer rooftop PV (only work if electricity_distribution_grid: true)
     m2_per_person: 12
