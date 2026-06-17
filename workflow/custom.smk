@@ -273,7 +273,7 @@ if config["countries"] == ["US"]:
         input:
             base_network="networks/" + RDIR + "base.nc",
             regions="resources/" + RDIR + "bus_regions/regions_onshore.geojson",
-            load=[rules.retrieve_ssp2.output.ssp2_northamerica],
+            load=rules.retrieve_ssp2.output.ssp2_northamerica,
             gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
 
     ruleorder: build_demand_profiles_from_eia > build_demand_profiles_custom > build_demand_profiles
