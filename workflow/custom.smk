@@ -260,27 +260,23 @@ if config["countries"] == ["US"]:
 
 if config["countries"] == ["US"]:
 
-    use rule build_demand_profiles from pypsa_earth as build_demand_profiles_custom with:
-        input:
-            base_network="networks/" + RDIR + "base.nc",
-            regions="resources/" + RDIR + "bus_regions/regions_onshore.geojson",
-            ssp2_dummy_input="ssp2_dummy_output.log",
-            load=[PYPSA_EARTH_DIR + "data/ssp2-2.6/2030/era5_2013/NorthAmerica.csv"],
-            gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
-
-    ruleorder: build_demand_profiles_from_eia > build_demand_profiles_custom > build_demand_profiles
-
     rule retrieve_ssp2:
-        params:
-            nc_path=PYPSA_EARTH_DIR + "data/ssp2-2.6/2030/era5_2013/NorthAmerica.nc",
         input:
             old_path=CUSTOM_USA_DATA_DIR + "NorthAmerica.csv",
         output:
             ssp2_northamerica=PYPSA_EARTH_DIR
             + "data/ssp2-2.6/2030/era5_2013/NorthAmerica.csv",
-            ssp2_dummy_output=temp("ssp2_dummy_output.log"),
         script:
             "../scripts/custom/retrieve_ssp2.py"
+
+    use rule build_demand_profiles from pypsa_earth as build_demand_profiles_custom with:
+        input:
+            base_network="networks/" + RDIR + "base.nc",
+            regions="resources/" + RDIR + "bus_regions/regions_onshore.geojson",
+            load=rules.retrieve_ssp2.output.ssp2_northamerica,
+            gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
+
+    ruleorder: build_demand_profiles_from_eia > build_demand_profiles_custom > build_demand_profiles
 
 
 if config["countries"] == ["US"]:
