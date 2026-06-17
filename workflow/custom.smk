@@ -96,7 +96,7 @@ else:
     ruleorder: prepare_airports > process_airport_data
 
 
-if config["countries"] == ["US"] and config["retrieve_from_gdrive"].get(
+if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
     "cutouts", False
 ):
 
@@ -112,7 +112,7 @@ if config["countries"] == ["US"] and config["retrieve_from_gdrive"].get(
 
 
 # retrieving precomputed osm/raw data and bypassing download_osm_data rule
-if config["countries"] == ["US"] and config["retrieve_from_gdrive"].get(
+if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
     "osm_raw", False
 ):
 
@@ -132,7 +132,7 @@ if config["countries"] == ["US"] and config["retrieve_from_gdrive"].get(
 
 
 # retrieving precomputed osm/clean data and bypassing clean_osm_data rule
-if config["countries"] == ["US"] and config["retrieve_from_gdrive"].get(
+if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
     "osm_clean", False
 ):
 
@@ -161,7 +161,7 @@ if config["countries"] == ["US"] and config["retrieve_from_gdrive"].get(
 
 
 # retrieving shapes data and bypassing build_shapes rule
-if config["countries"] == ["US"] and config["retrieve_from_gdrive"].get(
+if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
     "shapes", False
 ):
 
@@ -184,7 +184,7 @@ if config["countries"] == ["US"] and config["retrieve_from_gdrive"].get(
 
 
 # retrieving base_network data and bypassing build_osm_network rule
-if config["countries"] == ["US"] and config["retrieve_from_gdrive"].get(
+if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
     "osm_network", False
 ):
 
@@ -220,7 +220,7 @@ if config["countries"] == ["US"] and config["retrieve_from_gdrive"].get(
 
 
 # retrieving base.nc and bypassing base_network rule
-if config["countries"] == ["US"] and config["retrieve_from_gdrive"].get(
+if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
     "base_network", False
 ):
 
@@ -245,7 +245,7 @@ if config["countries"] == ["US"] and config["retrieve_from_gdrive"].get(
 
 
 # retrieving renewable_profiles data and bypassing build_renewable_profiles rule
-if config["countries"] == ["US"] and config["retrieve_from_gdrive"].get(
+if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
     "renewable_profiles", False
 ):
 

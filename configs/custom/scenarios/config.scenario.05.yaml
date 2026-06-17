@@ -72,7 +72,7 @@ custom_industry:
   biogenic_co2: true
 
 cluster_options:
-  alternative_clustering: false  # "False" use Voronoi shapes, "True" use GADM shapes
+  alternative_clustering: false  # "False" use Voronoi shapes, "True" use GADM shapes (only Voronoi clustering is currently supported)
   simplify_network:
     p_threshold_drop_isolated: 0.0
 
