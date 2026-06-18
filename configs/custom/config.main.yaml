@@ -156,7 +156,7 @@ custom_databundles:
     category: resources_osm_network
     destination: "resources"
     urls:
-      zenodo: https://zenodo.org/records/20747648/files/base_network_new_northamerica.zip/content
+      zenodo: https://zenodo.org/api/records/20747648/files/base_network_new_northamerica.zip/content
 
   # precomputed base.nc
   bundle_base_network_USA:
