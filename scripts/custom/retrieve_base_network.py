@@ -42,18 +42,34 @@ if __name__ == "__main__":
     config_base_network = config["custom_databundles"]["bundle_base_network_USA"]
 
     # destination for base.nc
-    destination = os.path.dirname(snakemake.output[0])
+    output_path = Path(snakemake.output[0])
+    destination = output_path.parent
 
     # download base.nc
     if "zenodo" in config_base_network["urls"]:
-        downloaded = download_and_unzip_zenodo(
+        download_and_unzip_zenodo(
             config_base_network,
             destination,
             logger,
         )
     else:
-        downloaded = download_and_unzip_gdrive(
+        download_and_unzip_gdrive(
             config_base_network,
             destination,
             logger,
         )
+
+    if not output_path.exists():
+        nc_files = list(destination.glob("*.nc"))
+
+        if len(nc_files) == 1:
+            nc_files[0].rename(output_path)
+        elif len(nc_files) == 0:
+            raise FileNotFoundError(
+                f"No .nc file found in {destination} after downloading base network."
+            )
+        else:
+            raise RuntimeError(
+                f"Multiple .nc files found in {destination}: {nc_files}. "
+                f"Cannot decide which one to use as {output_path}."
+            )
