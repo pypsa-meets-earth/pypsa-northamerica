@@ -2279,6 +2279,23 @@ def solve_network(n, config, solving, **kwargs):
     n.config = config
     n.opts = opts
 
+    line_bus_metadata_cols = [
+        "bus_0_coors",
+        "bus_1_coors",
+        "bus0_lon",
+        "bus0_lat",
+        "bus1_lon",
+        "bus1_lat",
+    ]
+
+    cols = [c for c in line_bus_metadata_cols if c in n.lines.columns]
+    if cols:
+        logger.warning(
+            "Dropping line bus metadata columns before PyPSA consistency check: %s",
+            cols,
+        )
+        n.lines = n.lines.drop(columns=cols)
+
     if skip_iterations:
         status, condition = n.optimize(**kwargs)
     else:
@@ -2341,7 +2358,7 @@ if __name__ == "__main__":
     costs = load_costs(
         snakemake.input.costs,
         snakemake.config["costs"],
-        snakemake.config["electricity"],
+        snakemake.config["electricity"]["max_hours"],
         Nyears,
     )
 
