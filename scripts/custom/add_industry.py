@@ -17,9 +17,9 @@ sys.path.append(
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-from process_cost_data import prepare_costs
 from build_demand_profiles_from_eia import read_data_center_profiles
 from prepare_sector_network import normalize_by_country, p_set_from_scaling
+from process_cost_data import prepare_costs
 
 from scripts.custom._helper import (
     configure_logging,

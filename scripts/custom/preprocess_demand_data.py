@@ -253,7 +253,7 @@ def overlay_demands(df_erst_gpd, df_gadm_usa, df_demand_utility):
     Parameters
     ----------
     df_erst_gpd: geopandas dataframe
-        Utilty level shapes
+        Utility level shapes
     df_gadm_usa: geopandas dataframe
         GADM shapes
     df_demand_utility: pandas dataframe
@@ -345,7 +345,7 @@ def map_demands_utilitywise(
     df_demand_utility: pandas dataframe
         Utility level demand data from EIA
     df_erst_gpd: geopandas dataframe
-        Utilty level shapes
+        Utility level shapes
     df_country: geopandas dataframe
         Country level shapes
     df_gadm_usa: geopandas dataframe

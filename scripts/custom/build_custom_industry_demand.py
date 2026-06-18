@@ -43,6 +43,7 @@ def map_industry_to_buses(df, countries, gadm_layer_id, shapes_path, gadm_cluste
         gadm_clustering,
     ).set_index(f"gadm_{gadm_layer_id}")
 
+
 def process_uscities(uscities):
     """
     Process US cities data to extract relevant information.

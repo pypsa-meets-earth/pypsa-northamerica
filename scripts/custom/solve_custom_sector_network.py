@@ -97,18 +97,17 @@ import numpy as np
 import pandas as pd
 import pypsa
 import xarray as xr
+from _helper import (
+    attach_grid_region_to_buses,
+)
 from _helpers import (
     configure_logging,
     create_logger,
     read_csv_nafix,
 )
-
-from _helper import (
-    attach_grid_region_to_buses,
-)
-from process_cost_data import load_costs
 from linopy import merge
 from prepare_network import set_transmission_limit
+from process_cost_data import load_costs
 from pypsa.descriptors import get_switchable_as_dense as get_as_dense
 from pypsa.optimization.abstract import optimize_transmission_expansion_iteratively
 from pypsa.optimization.optimize import optimize
