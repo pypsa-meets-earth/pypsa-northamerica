@@ -37,9 +37,9 @@ configfile: "configs/custom/config.main.yaml"
 wildcard_constraints:
     simpl="[a-zA-Z0-9]*|all",
     clusters="[0-9]+(m|flex)?|all|min",
-    ll="(v|c)([0-9\.]+|opt|all)|all",
-    opts="[-+a-zA-Z0-9\.]*",
-    unc="[-+a-zA-Z0-9\.]*",
+    ll="(v|c)([0-9.]+|opt|all)|all",
+    opts="[-+a-zA-Z0-9.]*",
+    unc="[-+a-zA-Z0-9.]*",
     planning_horizon="[0-9]{4}",
     countries="[A-Z]{2}",
 
