@@ -122,12 +122,26 @@ def override_component_attrs(directory):
     attrs = pypsa.components.component_attrs.copy()
     directory = Path(directory)
 
-    for component in attrs:
-        filename = component.lower().replace(" ", "_") + ".csv"
-        fn = directory / filename
+    component_files = {
+        "Bus": "buses.csv",
+        "Line": "lines.csv",
+        "Link": "links.csv",
+        "Load": "loads.csv",
+        "Generator": "generators.csv",
+        "Store": "stores.csv",
+        "StorageUnit": "storage_units.csv",
+    }
 
-        if fn.exists():
-            attrs[component] = pd.read_csv(fn, index_col=0, na_values="n/a")
+    for component, filename in component_files.items():
+        fn = directory / filename
+        if component in attrs and fn.exists():
+            custom_attrs = pd.read_csv(fn, index_col=0, na_values="n/a")
+            attrs[component] = pd.concat(
+                [
+                    attrs[component].drop(index=custom_attrs.index, errors="ignore"),
+                    custom_attrs,
+                ]
+            )
 
     return attrs
 
