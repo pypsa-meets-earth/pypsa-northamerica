@@ -51,7 +51,6 @@ SECDIR = run["sector_name"] + "/" if run.get("sector_name") else ""
 SDIR = config["summary_dir"].strip("/") + f"/{SECDIR}"
 RESDIR = config["results_dir"].strip("/") + f"/{SECDIR}"
 
-
 localrules:
     all,
 
@@ -97,7 +96,7 @@ else:
     ruleorder: prepare_airports > process_airport_data
 
 
-if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
+if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
     "cutouts", False
 ):
 
@@ -113,7 +112,7 @@ if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
 
 
 # retrieving precomputed osm/raw data and bypassing download_osm_data rule
-if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
+if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
     "osm_raw", False
 ):
 
@@ -133,7 +132,7 @@ if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
 
 
 # retrieving precomputed osm/clean data and bypassing clean_osm_data rule
-if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
+if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
     "osm_clean", False
 ):
 
@@ -152,7 +151,7 @@ if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
 
 
 # retrieving shapes data and bypassing build_shapes rule
-if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
+if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
     "shapes", False
 ):
 
@@ -171,7 +170,7 @@ if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
 
 
 # retrieving base_network data and bypassing build_osm_network rule
-if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
+if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
     "osm_network", False
 ):
 
@@ -199,7 +198,7 @@ if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
 
 
 # retrieving base.nc and bypassing base_network rule
-if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
+if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
     "base_network", False
 ):
 
@@ -224,7 +223,7 @@ if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
 
 
 # retrieving renewable_profiles data and bypassing build_renewable_profiles rule
-if config["countries"] == ["US"] and config["retrieve_from_zenodo"].get(
+if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
     "renewable_profiles", False
 ):
 
