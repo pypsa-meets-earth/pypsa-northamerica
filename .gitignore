@@ -57,6 +57,7 @@ doc/_build
 sample_pypsa_eur
 test/tmp/
 playground/
+plots/
 !data/nuclear_p_max_pu.csv
 
 # Specific configuration files
