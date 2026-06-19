@@ -73,7 +73,7 @@ cluster_options:
 
 electricity:
   agg_p_nom_limits:
-    file: data/agg_p_nom_minmax.csv
+    file: data/custom/usa/agg_p_nom_minmax.csv
   extendable_carriers:
     Generator: [solar, onwind, offwind-ac, offwind-dc, csp, geothermal, nuclear, OCGT, CCGT, biomass]
     Store: [battery, H2]
