@@ -1,0 +1,57 @@
+base_ref: origin/main
+upstream_ref: upstream/main
+
+watch:
+  workflow/custom.smk:
+    - Snakefile
+
+  rules:
+    build_demand_profiles_custom:
+      parent_rule: build_demand_profiles
+      parent_script: scripts/build_demand_profiles.py
+      review:
+        - workflow/custom.smk
+
+    build_powerplants_custom:
+      parent_rule: build_powerplants
+      parent_script: scripts/build_powerplants.py
+      review:
+        - workflow/custom.smk
+
+    prepare_energy_totals_custom:
+      parent_rule: prepare_energy_totals
+      parent_script: scripts/prepare_energy_totals.py
+      review:
+        - workflow/custom.smk
+
+    add_export_custom:
+      parent_rule: add_export
+      parent_script: scripts/add_export.py
+      review:
+        - workflow/custom.smk
+
+    prepare_sector_network_custom:
+      parent_rule: prepare_sector_network
+      parent_script: scripts/prepare_sector_network.py
+      review:
+        - workflow/custom.smk
+
+    solve_sector_network_custom:
+      parent_rule: solve_sector_network
+      parent_script: scripts/solve_network.py
+      review:
+        - workflow/custom.smk
+
+    solve_network_myopic_custom:
+      parent_rule: solve_network_myopic
+      parent_script: scripts/solve_network.py
+      review:
+        - workflow/custom.smk
+
+    solve_custom_sector_network:
+      parent_rule: solve_sector_network
+      parent_script: scripts/solve_network.py
+      custom_script: scripts/custom/solve_custom_sector_network.py
+      review:
+        - workflow/custom.smk
+        - scripts/custom/solve_custom_sector_network.py
