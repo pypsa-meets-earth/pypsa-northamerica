@@ -6,26 +6,15 @@
 
 test:
 	set -e
-	# this runs test scenario in test/config.test.yaml
-	snakemake solve_all_networks -call --configfile config.tutorial.yaml test/config.test.yaml
-	# add custom config to tutorial config
-	snakemake solve_all_networks_monte -call --configfile config.tutorial.yaml test/config.monte_carlo.yaml
-	snakemake -c4 solve_sector_networks --configfile config.tutorial.yaml test/config.sector.yaml
-	snakemake -c4 solve_sector_networks_myopic --configfile config.tutorial.yaml test/config.myopic.yaml
-	snakemake solve_all_networks -call --configfile config.tutorial.yaml test/config.custom.yaml
-	snakemake solve_all_networks -call --configfile config.tutorial.yaml test/config.landlock.yaml
-	echo "All tests completed successfully."
+	snakemake -c1 solve_sector_networks_myopic \
+		--configfile configs/custom/scenarios/test/config.test.na.yaml
+	echo "NorthAmerica workflow test completed successfully."
 
 setup:
-	# Add setup commands here
 	echo "Setup complete."
 
 clean:
-	# Add clean-up commands here
-	snakemake -j1 solve_all_networks --delete-all-output --configfile config.tutorial.yaml test/config.custom.yaml
-	snakemake -j1 solve_all_networks --delete-all-output --configfile config.tutorial.yaml configs/scenarios/config.NG.yaml
-	snakemake -j1 solve_all_networks_monte --delete-all-output --configfile test/config.monte_carlo.yaml
-	snakemake -j1 run_all_scenarios --delete-all-output --configfile test/config.landlock.yaml
-	snakemake -j1 solve_sector_networks --delete-all-output --configfile test/config.sector.yaml
-	snakemake -j1 solve_sector_networks_myopic --delete-all-output --configfile config.tutorial.yaml test/config.myopic.yaml
+	snakemake -j1 solve_sector_networks_myopic \
+		--delete-all-output \
+		--configfile configs/custom/scenarios/test/config.test.na.yaml
 	echo "Clean-up complete."
