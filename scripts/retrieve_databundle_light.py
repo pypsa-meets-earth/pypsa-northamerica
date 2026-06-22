@@ -94,6 +94,7 @@ from _helpers import (
     create_logger,
     progress_retrieve,
 )
+from requests.exceptions import ChunkedEncodingError, ConnectionError, ReadTimeout
 from snakemake.script import Snakemake
 from tqdm import tqdm
 
@@ -132,50 +133,83 @@ def load_databundle_config(config: dict | str) -> dict:
 
 
 def download_and_unzip_zenodo(
-    config: dict, rootpath: str, hot_run: bool = True, disable_progress: bool = False
+    config: dict,
+    rootpath: str,
+    hot_run: bool = True,
+    disable_progress: bool = False,
+    max_retries: int = 3,
 ) -> bool:
     """
-    download_and_unzip_zenodo(config, rootpath, dest_path, hot_run=True,
-    disable_progress=False)
+    Download and unzip a resource from Zenodo.
 
-    Function to download and unzip the data from zenodo
-
-    Parameters
-    ----------
-    config : dict
-        Configuration data for the category to download
-    rootpath : str
-        Absolute path of the repository
-    hot_run : bool (default True)
-        When true the data are downloaded
-        When false, the workflow is run without downloading and unzipping
-    disable_progress : bool (default False)
-        When true the progress bar to download data is disabled
-
-    Returns
-    -------
-    True when download is successful, False otherwise
+    The download is retried on transient connection errors, which are common
+    in CI when large files are downloaded from Zenodo.
     """
     resource = config["category"]
-    file_path = os.path.join(rootpath, "tempfile.zip")
+    safe_resource = re.sub(r"[^A-Za-z0-9_.-]+", "_", resource)
+    file_path = os.path.join(rootpath, f"tempfile_{safe_resource}.zip")
     destination = os.path.join(BASE_DIR, config["destination"])
     url = config["urls"]["zenodo"]
 
-    if hot_run:
+    if not hot_run:
+        return True
+
+    for attempt in range(1, max_retries + 1):
         try:
-            logger.info(f"Downloading resource '{resource}' from cloud '{url}'")
+            if os.path.exists(file_path):
+                os.remove(file_path)
+
+            logger.info(
+                "Downloading resource '%s' from cloud '%s' " "(attempt %s/%s)",
+                resource,
+                url,
+                attempt,
+                max_retries,
+            )
+
             progress_retrieve(url, file_path, disable_progress=disable_progress)
-            logger.info(f"Extracting resources")
-            with ZipFile(file_path, "r") as zipObj:
-                # Extract all the contents of zip file in current directory
-                zipObj.extractall(path=destination)
+
+            logger.info("Extracting resource '%s'", resource)
+            with ZipFile(file_path, "r") as zip_obj:
+                zip_obj.extractall(path=destination)
+
             os.remove(file_path)
-            logger.info(f"Downloaded resource '{resource}' from cloud '{url}'.")
-        except:
-            logger.warning(f"Failed download resource '{resource}' from cloud '{url}'.")
+            logger.info("Downloaded resource '%s' from cloud '%s'.", resource, url)
+            return True
+
+        except (ChunkedEncodingError, ConnectionError, ReadTimeout) as exc:
+            logger.warning(
+                "Transient download failure for resource '%s' from cloud '%s' "
+                "on attempt %s/%s: %s",
+                resource,
+                url,
+                attempt,
+                max_retries,
+                exc,
+            )
+
+            if os.path.exists(file_path):
+                os.remove(file_path)
+
+            if attempt < max_retries:
+                time.sleep(10 * attempt)
+                continue
+
             return False
 
-    return True
+        except Exception as exc:
+            logger.exception(
+                "Failed to download resource '%s' from cloud '%s'.",
+                resource,
+                url,
+            )
+
+            if os.path.exists(file_path):
+                os.remove(file_path)
+
+            return False
+
+    return False
 
 
 def download_and_unzip_gdrive(

@@ -84,6 +84,18 @@ jobs:
     - name: Conda list
       run: conda list
 
+    - name: Cache test data
+      uses: actions/cache@v4
+      with:
+        path: |
+          data/custom
+          data/ssp2-2.6
+          resources/NA_test
+          networks/NA_test
+        key: pypsa-na-test-data-${{ runner.os }}-${{ hashFiles('configs/custom/**/*.yaml', 'config*.yaml', 'test/config.test.yaml') }}
+        restore-keys: |
+          pypsa-na-test-data-${{ runner.os }}-
+
     - name: Run Test
       run: make test
 
