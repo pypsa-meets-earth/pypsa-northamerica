@@ -1,7 +1,6 @@
-# SPDX-FileCopyrightText:  Open Energy Transition gGmbH
+# SPDX-FileCopyrightText: PyPSA-NorthAmerica contributors
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
-
 countries: ["US"]
 
 enable:

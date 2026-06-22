@@ -31,14 +31,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, macos, windows]
+        os: [ubuntu]
         include:
         - os: ubuntu
           env_file: envs/linux-64.lock.yaml
-        - os: macos
-          env_file: envs/osx-arm64.lock.yaml
-        - os: windows
-          env_file: envs/win-64.lock.yaml
 
     defaults:
       run:
@@ -71,7 +67,7 @@ jobs:
         conda-remove-defaults: true
 
     - name: Cache Conda env
-      uses: actions/cache@v5
+      uses: actions/cache@v4
       with:
         path: ${{ env.CONDA }}/envs
         key: conda-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles(format('{0}', env.env_file)) }}

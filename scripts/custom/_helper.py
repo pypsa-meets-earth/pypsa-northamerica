@@ -326,32 +326,77 @@ def download_and_unzip_gdrive(
 def download_and_unzip_zenodo(
     config, destination, logger, disable_progress=False, url=None
 ):
+    import time
+
     import requests
 
     resource = config["category"]
     file_path = os.path.join(PYPSA_EARTH_DIR, f"tempfile_{resource}.zip")
+    max_retries = 3
 
     if url is None:
         url = config["urls"]["zenodo"]
 
-    Path(file_path).unlink(missing_ok=True)
+    for attempt in range(1, max_retries + 1):
+        try:
+            Path(file_path).unlink(missing_ok=True)
 
-    response = requests.get(url, stream=True, timeout=300)
-    response.raise_for_status()
+            logger.info(
+                "Downloading resource '%s' from Zenodo '%s' (attempt %s/%s).",
+                resource,
+                url,
+                attempt,
+                max_retries,
+            )
 
-    with open(file_path, "wb") as f:
-        for chunk in response.iter_content(chunk_size=1024 * 1024):
-            if chunk:
-                f.write(chunk)
+            response = requests.get(url, stream=True, timeout=300)
+            response.raise_for_status()
 
-    with ZipFile(file_path, "r") as zipObj:
-        zipObj.extractall(path=destination)
+            with open(file_path, "wb") as f:
+                for chunk in response.iter_content(chunk_size=1024 * 1024):
+                    if chunk:
+                        f.write(chunk)
 
-    Path(file_path).unlink(missing_ok=True)
+            with ZipFile(file_path, "r") as zip_obj:
+                zip_obj.extractall(path=destination)
 
-    logger.info(f"Download resource '{resource}' from Zenodo '{url}'.")
+            Path(file_path).unlink(missing_ok=True)
 
-    return True
+            logger.info("Downloaded resource '%s' from Zenodo '%s'.", resource, url)
+            return True
+
+        except (
+            requests.exceptions.ConnectionError,
+            requests.exceptions.ChunkedEncodingError,
+            requests.exceptions.ReadTimeout,
+        ) as exc:
+            logger.warning(
+                "Transient Zenodo download failure for resource '%s' "
+                "on attempt %s/%s: %s",
+                resource,
+                attempt,
+                max_retries,
+                exc,
+            )
+
+            Path(file_path).unlink(missing_ok=True)
+
+            if attempt < max_retries:
+                time.sleep(10 * attempt)
+                continue
+
+            return False
+
+        except Exception:
+            logger.exception(
+                "Failed to download or extract resource '%s' from Zenodo '%s'.",
+                resource,
+                url,
+            )
+            Path(file_path).unlink(missing_ok=True)
+            return False
+
+    return False
 
 
 def osm_raw_outputs():
