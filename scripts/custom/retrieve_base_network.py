@@ -60,16 +60,11 @@ if __name__ == "__main__":
         )
 
     if not output_path.exists():
-        nc_files = list(destination.glob("*.nc"))
+        downloaded_path = destination / "base_new_northamerica.nc"
 
-        if len(nc_files) == 1:
-            nc_files[0].rename(output_path)
-        elif len(nc_files) == 0:
+        if not downloaded_path.exists():
             raise FileNotFoundError(
-                f"No .nc file found in {destination} after downloading base network."
+                f"Expected downloaded base network not found: {downloaded_path}"
             )
-        else:
-            raise RuntimeError(
-                f"Multiple .nc files found in {destination}: {nc_files}. "
-                f"Cannot decide which one to use as {output_path}."
-            )
+
+        downloaded_path.rename(output_path)
