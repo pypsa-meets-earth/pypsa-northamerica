@@ -72,12 +72,13 @@ custom_industry:
   biogenic_co2: true
 
 cluster_options:
-  alternative_clustering: false  # "False" use Voronoi shapes, "True" use GADM shapes
+  alternative_clustering: false  # "False" use Voronoi shapes, "True" use GADM shapes (only Voronoi clustering is currently supported)
   simplify_network:
     p_threshold_drop_isolated: 0.0
 
 electricity:
-  agg_p_nom_limits: data/agg_p_nom_minmax.csv
+  agg_p_nom_limits:
+    file: data/custom/usa/agg_p_nom_minmax.csv
   extendable_carriers:
     Generator: [solar, onwind, offwind-ac, offwind-dc, csp, geothermal, nuclear, OCGT, CCGT, biomass]
     Store: [battery, H2]

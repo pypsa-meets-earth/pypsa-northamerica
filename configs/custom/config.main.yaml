@@ -5,15 +5,17 @@
 validation:
   planning_horizon: [2020]
 
-# retrieving precomputed files from google drive and bypassing re-execution
-retrieve_from_gdrive:
-  cutouts: false # if true, US cutouts are retrieved from google drive, else it is retrieved using retrieve_databundle_light if enable is true
+# retrieving precomputed files from Google Drive and bypassing re-execution
+retrieve_precomputed:
+  cutouts: false # if true, US cutouts are retrieved from Google Drive, else it is retrieved using retrieve_databundle_light if enable is true
   osm_raw: true # if true, bypasses download_osm_data rule
   osm_clean: true # if true, bypasses clean_osm_data rule
   shapes: true # if true, bypasses build_shapes rule
   osm_network: true # if true, bypasses build_osm_network rule
   base_network: true # if true, bypasses base_network rule
   renewable_profiles: true # if true, bypasses build_renewable_profiles rule
+
+custom_rules: ["workflow/custom.smk"]
 
 costs:
   discountrate: [0.07] # from the `fill_values` section
@@ -39,6 +41,14 @@ costs:
     CCGT: 45
     OCGT: 45
 
+cluster_options:
+  aggregation_strategies:
+    lines:
+      tag_type: first
+      tag_frequency: first
+      underground: any
+      under_construction: any
+
 export:
   endogenous: false # If true, the export demand is endogenously determined by the model
   h2export: [0] # Yearly export demand in TWh. Only considered, if ["export"]["endogenous"] is set to false
@@ -60,7 +70,7 @@ demand_distribution:
   holes_area_threshold: 100
   nprocesses: 4
   plotting: true
-  set_custom_distribution_fees: true # true, false
+  set_distribution_fees: true # true, false
 
 demand_projection:
   planning_horizon: 2023
@@ -80,6 +90,8 @@ sector:
   co2_sequestration_potential: 250 # MtCO2/a sequestration potential for US
   co2_sequestration_cost: 8 # USD/tCO2 for sequestration of CO2
   demand_projection_reference_year: 2023
+  ammonia:
+    enable: false
 
   solar_rooftop: # adds distribution side customer rooftop PV (only work if electricity_distribution_grid: true)
     m2_per_person: 12
@@ -120,7 +132,7 @@ custom_databundles:
     category: resources_osm_raw
     destination: "resources"
     urls:
-      gdrive: https://drive.google.com/file/d/1OivnWzAC1RW47wBquqqrBY5Ti0S_9_7B/view?usp=sharing
+      zenodo: https://zenodo.org/api/records/20762977/files/osm_raw.zip/content
 
   # precomputed clean osm data
   bundle_osm_clean_USA:
@@ -128,7 +140,7 @@ custom_databundles:
     category: resources_osm_clean
     destination: "resources"
     urls:
-      gdrive: https://drive.google.com/file/d/15LNOikkfVfUdJ40y-58QwEwqNkiabL78/view?usp=sharing
+      zenodo: https://zenodo.org/api/records/20762977/files/osm_clean.zip/content
 
   # precomputed shapes data
   bundle_shapes_USA:
@@ -136,7 +148,7 @@ custom_databundles:
     category: resources_shapes
     destination: "resources"
     urls:
-      gdrive: https://drive.google.com/file/d/1Uql8Icsy5z02YRCenZ4S2TS0qqT8GY4W/view?usp=sharing
+      zenodo: https://zenodo.org/api/records/20762977/files/shapes.zip/content
 
   # precomputed osm network data
   bundle_osm_network_USA:
@@ -144,7 +156,7 @@ custom_databundles:
     category: resources_osm_network
     destination: "resources"
     urls:
-      gdrive: https://drive.google.com/file/d/1jeoZKwBPoJCKbXYks22dKF7r9Ju3oZqQ/view?usp=sharing
+      zenodo: https://zenodo.org/api/records/20762977/files/base_network_new_northamerica.zip/content
 
   # precomputed base.nc
   bundle_base_network_USA:
@@ -152,7 +164,7 @@ custom_databundles:
     category: resources_base_network
     destination: "resources"
     urls:
-      gdrive: https://drive.google.com/file/d/1jblRngNeOuyRlXDb4miZjWXyyXvJCo5s/view?usp=sharing
+      zenodo: https://zenodo.org/api/records/20762977/files/base_new_northamerica.nc.zip/content
 
   # precomputed renewable_profiles data
   bundle_renewable_profiles_USA:
@@ -160,13 +172,12 @@ custom_databundles:
     category: resources_renewable_profiles
     destination: "resources"
     urls:
-      alternative_clustering: https://drive.google.com/file/d/1Bt8NVxhe2-nrw2ZTg35sgUIQ-R8A57DN/view?usp=sharing
-      voronoi_clustering: https://drive.google.com/file/d/1ornHEC2Wey5w3XJ3bMT30DeJU2oDI0Gk/view?usp=sharing
+      zenodo: https://zenodo.org/api/records/20762977/files/renewable_profiles_voronoi_new_northamerica.zip/content
 
   # demand data used for demand redistribution
   bundle_demand_data_USA:
     countries: [US]
     category: data_demand_data
-    destination: "data"
+    destination: "data/custom/usa"
     urls:
-      gdrive: https://drive.google.com/file/d/15URN8vooJHqfAUEZjBGXoBuk5A0jPM7H/view?usp=sharing
+      zenodo: https://zenodo.org/api/records/20762977/files/demand_data.zip/content
