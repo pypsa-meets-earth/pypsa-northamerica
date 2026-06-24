@@ -26,6 +26,17 @@ enable:
   download_osm_data: true  # If 'true', OpenStreetMap data will be downloaded for the above given countries
   custom_busmap: true
 
+retrieve_precomputed:
+  demand_profiles: true
+
+custom_databundles:
+  bundle_demand_profiles_NA_test:
+    countries: [US]
+    category: resources_demand_profiles
+    destination: "resources/NA_test"
+    urls:
+      zenodo: https://zenodo.org/api/records/20827763/files/demand_profiles_test.gz/content
+
 run:
   name: "NA_test" # use this to keep track of runs with different settings
   sector_name: "NA_test"

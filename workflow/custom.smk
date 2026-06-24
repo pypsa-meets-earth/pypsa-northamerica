@@ -276,7 +276,24 @@ if config["countries"] == ["US"]:
             load=rules.retrieve_ssp2.output.ssp2_northamerica,
             gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
 
-    ruleorder: build_demand_profiles_from_eia > build_demand_profiles_custom > build_demand_profiles
+
+if config["retrieve_precomputed"].get("demand_profiles", False):
+
+    rule retrieve_test_demand_profiles:
+        output:
+            demand_profile_path="resources/NA_test/demand_profiles.csv",
+        params:
+            url=config["custom_databundles"]["bundle_demand_profiles_NA_test"]["urls"][
+                "zenodo"
+            ],
+        shell:
+            """
+            mkdir -p resources/NA_test
+            wget -q -O {output.demand_profile_path}.gz {params.url}
+            gunzip -f {output.demand_profile_path}.gz
+            """
+
+    ruleorder: retrieve_test_demand_profiles > build_demand_profiles_from_eia > build_demand_profiles_custom > build_demand_profiles
 
 
 if config["countries"] == ["US"]:
