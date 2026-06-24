@@ -1786,11 +1786,15 @@ def hydrogen_temporal_constraint(n, additionality, time_period):
 
     def _sum_by_period(expr, period):
         labels = _period_labels(n.snapshots, period)
-        out = []
-        for label in pd.Index(labels).unique():
-            snapshots = n.snapshots[labels == label]
-            out.append((label, expr.loc[snapshots].sum("snapshot")))
-        return out
+
+        period_da = xr.DataArray(
+            labels,
+            dims=["snapshot"],
+            coords={"snapshot": n.snapshots},
+            name="period",
+        )
+
+        return expr.groupby(period_da).sum("snapshot")
 
     weights = xr.DataArray(
         n.snapshot_weightings.generators,
@@ -1914,15 +1918,12 @@ def hydrogen_temporal_constraint(n, additionality, time_period):
                     coords={"snapshot": n.snapshots},
                 )
 
-            res_r_agg = _sum_by_period(res_r, time_period)
-            el_r_agg = _sum_by_period(el_r, time_period)
+            lhs = _sum_by_period(res_r, time_period) + _sum_by_period(el_r, time_period)
 
-            for i, ((_, res_expr), (_, el_expr)) in enumerate(zip(res_r_agg, el_r_agg)):
-                lhs = res_expr + el_expr
-                n.model.add_constraints(
-                    lhs >= 0.0,
-                    name=f"RESconstraints_tm_reg_{region}_{i}_REStarget_tm_reg_{region}_{i}",
-                )
+            n.model.add_constraints(
+                lhs >= 0.0,
+                name=f"RES_temporal_matching_{str(region).replace(' ', '_')}",
+            )
 
     if additionality and len(cohorts) > 0:
         cohorts_sorted = np.sort(cohorts)
@@ -1975,25 +1976,19 @@ def hydrogen_temporal_constraint(n, additionality, time_period):
                         coords={"snapshot": n.snapshots},
                     )
 
-                res_y_r_agg = _sum_by_period(res_y_r, time_period)
-                el_input_yplus_r_agg = _sum_by_period(
+                lhs = _sum_by_period(res_y_r, time_period) + _sum_by_period(
                     el_input_yplus_r,
                     time_period,
                 )
 
-                for i, ((_, res_expr), (_, el_expr)) in enumerate(
-                    zip(res_y_r_agg, el_input_yplus_r_agg)
-                ):
-                    lhs = res_expr + el_expr
-                    n.model.add_constraints(
-                        lhs >= 0.0,
-                        name=(
-                            "RESconstraints_additionality_threshold_"
-                            f"{region}_{year}_{i}_"
-                            "REStarget_additionality_threshold_"
-                            f"{region}_{year}_{i}"
-                        ),
-                    )
+                region_token = (
+                    str(region).replace(" ", "_").replace(".", "p").replace("-", "_")
+                )
+
+                n.model.add_constraints(
+                    lhs >= 0.0,
+                    name=f"RES_temporal_matching_{region_token}",
+                )
 
 
 def add_chp_constraints(n):
