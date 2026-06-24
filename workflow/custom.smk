@@ -293,7 +293,13 @@ if config["retrieve_precomputed"].get("demand_profiles", False):
             gunzip -f {output.demand_profile_path}.gz
             """
 
-    ruleorder: retrieve_test_demand_profiles > build_demand_profiles_from_eia > build_demand_profiles_custom > build_demand_profiles
+    if config["demand_distribution"]["enable"]:
+
+        ruleorder: retrieve_test_demand_profiles > build_demand_profiles_from_eia > build_demand_profiles_custom > build_demand_profiles
+
+    else:
+
+        ruleorder: retrieve_test_demand_profiles > build_demand_profiles_custom > build_demand_profiles
 
 
 if config["countries"] == ["US"]:
