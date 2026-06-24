@@ -35,7 +35,7 @@ custom_databundles:
     category: resources_demand_profiles
     destination: "resources/NA_test"
     urls:
-      zenodo: https://zenodo.org/api/records/20827763/files/demand_profiles_test.gz/content
+      zenodo: https://zenodo.org/api/records/20827763/files/demand_profiles_test.csv.gz/content
 
 run:
   name: "NA_test" # use this to keep track of runs with different settings
