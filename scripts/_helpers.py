@@ -366,6 +366,9 @@ def progress_retrieve(
 
     from tqdm import tqdm
 
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        disable_progress = True
+
     pbar = tqdm(total=100, disable=disable_progress)
 
     def dlProgress(count, blockSize, totalSize, roundto=roundto):
