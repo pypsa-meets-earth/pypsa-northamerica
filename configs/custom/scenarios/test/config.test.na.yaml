@@ -1,22 +1,6 @@
-# SPDX-FileCopyrightText:  Open Energy Transition gGmbH
+# SPDX-FileCopyrightText: PyPSA-NorthAmerica contributors
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
-#
-# Scenario n. 2 - Reference - ReFuel EU
-#
-# | Temporal matching        | Hourly matching                           | Yes                                   |
-# | Aviation sector          | Aviation demand                           | Central                               |
-# |                          | e-kerosene blending mandate               | ReFuel EU                             |
-# | Demand projections       | Electricity demand + EV share             | Medium                                |
-# | Costs                    | Electricity generation (NREL ATB)         | Moderate + tax credits                |
-# |                          | Electrolysis (ICCT IRA assumptions)       | Moderate (no tax credits)             |
-# |                          | DAC                                       | Moderate  + tax credits               |
-# |                          | Point-source CO₂ capture (NPC)            | Conservative + tax credits            |
-# | Supply constraint        | CO2 supply                                | Biogenic & non-biogenic sources + DAC |
-# | Power sector development | Transmission expansion                    | No new expansion *                    |
-# |                          | State policies for electricity generation | Current policies                      |
-# * Optimal transmission expansion if infeasible
-
 countries: ["US"]
 
 enable:
@@ -24,7 +8,7 @@ enable:
   retrieve_databundle_sector: true
   retrieve_cost_data: true  # true: retrieves cost data from technology data and saves in resources/costs.csv, false: uses cost data in data/costs.csv
   download_osm_data: true  # If 'true', OpenStreetMap data will be downloaded for the above given countries
-  custom_busmap: true
+  custom_busmap: false
 
 retrieve_precomputed:
   demand_profiles: true
@@ -46,11 +30,9 @@ foresight: myopic
 scenario:
   simpl: ['']
   ll: ['v1']
-  clusters: [100]
+  clusters: [10]
   opts: [CCL-24H]
   planning_horizons:
-  - 2030
-  - 2035
   - 2040
   sopts:
   - "24H"
@@ -60,10 +42,18 @@ aviation_demand_scenario:
   scenario: central # low, central or high
 
 saf_mandate:
-  ekerosene_split: true # separate e-kerosene as separate bus
+  ekerosene_split: false # separate e-kerosene as separate bus
   non_spatial_ekerosene: true # connects all e-kerosene buses with a single E-kerosene-main bus to model 0 cost of transport and store
-  enable_mandate: true # enable SAF mandate
+  enable_mandate: false # enable SAF mandate
   saf_scenario: EU # EU (default), EU+, EU-
+
+demand_distribution:
+  enable: false
+  base_demand_year: 2023
+  holes_area_threshold: 100
+  nprocesses: 4
+  plotting: true
+  set_distribution_fees: false # true, false
 
 demand_projection:
   planning_horizon: 2030 # only needed for power model, sector model takes demand from UN data using planning_horizon
@@ -115,8 +105,8 @@ costs:
 
 policy_config:
   hydrogen:
-    temporal_matching: "hourly" # either "hourly", "monthly", "yearly", "no_temporal_matching"
-    additionality: true
+    temporal_matching: "no_temporal_matching" # either "hourly", "monthly", "yearly", "no_temporal_matching"
+    additionality: false
     temporal_matching_carriers: [csp, solar, onwind, offwind-ac, offwind-dc, ror, hydro, nuclear]
 
 demand_data:

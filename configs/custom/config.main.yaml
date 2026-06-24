@@ -7,7 +7,7 @@ validation:
 
 # retrieving precomputed files from Google Drive and bypassing re-execution
 retrieve_precomputed:
-  cutouts: false # if true, US cutouts are retrieved from Google Drive, else it is retrieved using retrieve_databundle_light if enable is true
+  cutouts: true # if true, US cutouts are retrieved from Google Drive, else it is retrieved using retrieve_databundle_light if enable is true
   osm_raw: true # if true, bypasses download_osm_data rule
   osm_clean: true # if true, bypasses clean_osm_data rule
   shapes: true # if true, bypasses build_shapes rule
