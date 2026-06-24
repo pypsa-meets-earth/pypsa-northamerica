@@ -178,50 +178,50 @@ The 3-hour resolution significantly reduces both runtime and memory requirements
 
 ## Collaborators
 
-PyPSA-NorthAmerica builds on the PyPSA-Earth-based model developed in the framework of the [[Grid modelling to assess electrofuels supply potential](https://github.com/open-energy-transition/efuels-supply-potentials) project by:
+PyPSA-NorthAmerica builds on the PyPSA-Earth-based model developed in the framework of the [Grid modelling to assess electrofuels supply potential](https://github.com/open-energy-transition/efuels-supply-potentials) project by:
 
 <table>
-  <tbody>
-    <tr>
-      <td align="center">
-        <a href="https://github.com/danielelerede-oet">
-          <img src="https://avatars.githubusercontent.com/u/175011591?v=4" width="100;" alt="danielelerede-oet"/>
-          <br />
-          <sub><b>Daniele Lerede</b></sub>
-        </a>
-      </td>
+<tr>
 
-      <td align="center">
-        <a href="https://github.com/yerbol-akhmetov">
-          <img src="https://avatars.githubusercontent.com/u/113768325?v=4" width="100;" alt="yerbol-akhmetov"/>
-          <br />
-          <sub><b>Yerbol Akhmetov</b></sub>
-        </a>
-      </td>
+<td align="center">
+<a href="https://github.com/danielelerede-oet">
+<img src="https://avatars.githubusercontent.com/u/175011591?v=4" width="100">
+<br>
+<sub><b>Daniele Lerede</b></sub>
+</a>
+</td>
 
-      <td align="center">
-        <a href="https://github.com/GbotemiB">
-          <img src="https://avatars.githubusercontent.com/u/48842684?v=4" width="100;" alt="GbotemiB"/>
-          <br />
-          <sub><b>Emmanuel Gbotemi</b></sub>
-        </a>
-      </td>
+<td align="center">
+<a href="https://github.com/yerbol-akhmetov">
+<img src="https://avatars.githubusercontent.com/u/113768325?v=4" width="100">
+<br>
+<sub><b>Yerbol Akhmetov</b></sub>
+</a>
+</td>
 
-      <td align="center">
-        <a href="https://github.com/hazemakhalek">
-          <img src="https://avatars.githubusercontent.com/u/87850910?v=4" width="100;" alt="hazemakhalek"/>
-          <br />
-          <sub><b>Hazem Akhalek</b></sub>
-        </a>
-      </td>
+<td align="center">
+<a href="https://github.com/GbotemiB">
+<img src="https://avatars.githubusercontent.com/u/48842684?v=4" width="100">
+<br>
+<sub><b>Emmanuel Gbotemi</b></sub>
+</a>
+</td>
 
-      <td align="center">
-        <a href="https://github.com/SermishaNarayana">
-          <img src="https://avatars.githubusercontent.com/u/156903227?v=4" width="100;" alt="SermishaNarayana"/>
-          <br />
-          <sub><b>Sermisha Narayana</b></sub>
-        </a>
-      </td>
-    </tr>
-  </tbody>
+<td align="center">
+<a href="https://github.com/hazemakhalek">
+<img src="https://avatars.githubusercontent.com/u/87850910?v=4" width="100">
+<br>
+<sub><b>Hazem Akhalek</b></sub>
+</a>
+</td>
+
+<td align="center">
+<a href="https://github.com/SermishaNarayana">
+<img src="https://avatars.githubusercontent.com/u/156903227?v=4" width="100">
+<br>
+<sub><b>Sermisha Narayana</b></sub>
+</a>
+</td>
+
+</tr>
 </table>
