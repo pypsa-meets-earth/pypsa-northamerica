@@ -401,7 +401,7 @@ if config["demand_distribution"]["enable"]:
         script:
             "../scripts/custom/build_demand_profiles_from_eia.py"
 
-    ruleorder: build_demand_profiles_from_eia > build_demand_profiles
+    ruleorder: build_demand_profiles_from_eia > build_demand_profiles_custom > build_demand_profiles
 
 
 if config["saf_mandate"]["ekerosene_split"]:
