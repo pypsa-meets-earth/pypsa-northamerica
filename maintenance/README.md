@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: PyPSA-NorthAmerica contributors
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # Upstream Watch
 
 ## Purpose
