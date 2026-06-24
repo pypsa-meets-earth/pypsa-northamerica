@@ -178,6 +178,8 @@ The 3-hour resolution significantly reduces both runtime and memory requirements
 
 ## Collaborators
 
+PyPSA-NorthAmerica builds on the PyPSA-Earth-based model developed in the framework of the [[Grid modelling to assess electrofuels supply potential]](https://github.com/open-energy-transition/efuels-supply-potentials) project by:
+
 <table>
   <tbody>
     <tr>
