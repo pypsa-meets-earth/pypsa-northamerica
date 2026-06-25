@@ -260,9 +260,7 @@ def configure_logging(snakemake, skip_handlers=False):
     logging.basicConfig(**kwargs, force=True)
 
 
-def download_and_unzip_gdrive(
-    config, destination, logger, disable_progress=False, url=None
-):
+def download_and_unzip_gdrive(config, destination, logger, url=None):
     """
     Downloads and unzips data from custom bundle config
     """
@@ -300,7 +298,7 @@ def download_and_unzip_gdrive(
         gdd.download_file_from_google_drive(
             file_id=file_id,
             dest_path=file_path,
-            showsize=not disable_progress,
+            showsize=False,
             unzip=False,
         )
         with ZipFile(file_path, "r") as zipObj:
@@ -323,9 +321,7 @@ def download_and_unzip_gdrive(
         return False
 
 
-def download_and_unzip_zenodo(
-    config, destination, logger, disable_progress=False, url=None
-):
+def download_and_unzip_zenodo(config, destination, logger, url=None):
     import time
 
     import requests
