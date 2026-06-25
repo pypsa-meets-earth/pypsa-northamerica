@@ -223,6 +223,20 @@ if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
     ruleorder: retrieve_base_network > base_network
 
 
+# retrieving elec.nc and bypassing add_electricity rule
+if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
+    "electricity_network", False
+):
+
+    rule retrieve_electricity_network:
+        output:
+            PYPSA_EARTH_DIR + "networks/" + RDIR + "elec.nc",
+        script:
+            "../scripts/custom/retrieve_electricity_network.py"
+
+    ruleorder: retrieve_electricity_network > add_electricity
+
+
 # retrieving renewable_profiles data and bypassing build_renewable_profiles rule
 if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
     "renewable_profiles", False
