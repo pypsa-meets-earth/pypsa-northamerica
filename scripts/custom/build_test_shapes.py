@@ -38,6 +38,7 @@ if __name__ == "__main__":
     test_region["country"] = "US"
     test_region["GID_0"] = "US"
     test_region["GID_1"] = f"US.{region}"
+    test_region["GADM_ID"] = test_region["GID_1"]
     test_region["NAME_0"] = "United States"
     test_region["NAME_1"] = test_region["subregion"].iloc[0]
 
