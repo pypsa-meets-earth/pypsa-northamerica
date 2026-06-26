@@ -311,6 +311,14 @@ if config["countries"] == ["US"]:
             load=rules.retrieve_ssp2.output.ssp2_northamerica,
             gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
 
+    if config["demand_distribution"]["enable"]:
+
+        ruleorder: build_demand_profiles_from_eia > build_demand_profiles_custom > build_demand_profiles
+
+    else:
+
+        ruleorder: build_demand_profiles_custom > build_demand_profiles
+
 
 if config["countries"] == ["US"]:
 
