@@ -13,7 +13,7 @@ enable:
   retrieve_databundle_sector: true
   retrieve_cost_data: true
   download_osm_data: true
-  retrieve_cutout: true # must be true for CI tests
+  retrieve_cutout: false # must be true for CI tests
   build_cutout: false
   custom_busmap: false
 
@@ -24,6 +24,15 @@ retrieve_precomputed:
   osm_network: true
   base_network: true
   renewable_profiles: true
+  demand_profiles_test: true
+
+custom_databundles:
+  bundle_demand_profiles_test:
+    countries: [US]
+    category: resources_demand_profiles
+    destination: "resources"
+    urls:
+      zenodo: https://zenodo.org/api/records/20942411/files/demand_profiles_test.csv.zip/content
 
 run:
   name: "NA_test"
@@ -53,7 +62,7 @@ saf_mandate:
 
 # Keep this off until ERCOT demand mapping is verified.
 demand_distribution:
-  enable: true
+  enable: false
   base_demand_year: 2023
   holes_area_threshold: 100
   nprocesses: 2

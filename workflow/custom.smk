@@ -304,6 +304,17 @@ if config["countries"] == ["US"]:
         script:
             "../scripts/custom/retrieve_ssp2.py"
 
+    if config["retrieve_precomputed"].get("demand_profiles_test", False):
+
+        rule retrieve_test_demand_profiles:
+            output:
+                demand_profile_path=PYPSA_EARTH_DIR
+                + "resources/"
+                + RDIR
+                + "demand_profiles.csv",
+            script:
+                "../scripts/custom/retrieve_test_demand_profiles.py"
+
     use rule build_demand_profiles from pypsa_earth as build_demand_profiles_custom with:
         input:
             base_network="networks/" + RDIR + "base.nc",
@@ -311,7 +322,11 @@ if config["countries"] == ["US"]:
             load=rules.retrieve_ssp2.output.ssp2_northamerica,
             gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
 
-    if config["demand_distribution"]["enable"]:
+    if config["retrieve_precomputed"].get("demand_profiles_test", False):
+
+        ruleorder: retrieve_test_demand_profiles > build_demand_profiles_from_eia > build_demand_profiles_custom > build_demand_profiles
+
+    elif config["demand_distribution"]["enable"]:
 
         ruleorder: build_demand_profiles_from_eia > build_demand_profiles_custom > build_demand_profiles
 
