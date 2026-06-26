@@ -439,14 +439,17 @@ def map_demands_utilitywise(
         )
         logger.info("Generated holes mapped to GADM")
 
-    # # Compute intersecting areas of holes and states
+    # Compute intersecting areas of holes and states
     holes_mapped_intersect = holes_mapped.copy()
-    holes_mapped_intersect["geometry"] = holes_mapped.apply(
-        lambda x: x.geometry.intersection(
-            df_gadm_usa.loc[df_gadm_usa["GID_1"] == x["GID_1"]].iloc[0].geometry
-        ),
-        axis=1,
-    )
+
+    if not holes_mapped_intersect.empty:
+        holes_mapped_intersect["geometry"] = holes_mapped.apply(
+            lambda x: x.geometry.intersection(
+                df_gadm_usa.loc[df_gadm_usa["GID_1"] == x["GID_1"]].iloc[0].geometry
+            ),
+            axis=1,
+        )
+
     holes_mapped_intersect["area"] = holes_mapped_intersect.area
     holes_mapped_intersect_filter = holes_mapped_intersect.copy()
 

@@ -13,7 +13,7 @@ enable:
   retrieve_databundle_sector: true
   retrieve_cost_data: true
   download_osm_data: true
-  retrieve_cutout: true
+  retrieve_cutout: true # must be true for CI tests
   build_cutout: false
   custom_busmap: false
 
