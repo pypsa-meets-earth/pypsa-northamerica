@@ -12,6 +12,7 @@ enable:
 
 retrieve_precomputed:
   demand_profiles: true
+  electricity_network: true
 
 custom_databundles:
   bundle_demand_profiles_NA_test:
