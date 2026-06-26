@@ -151,9 +151,41 @@ if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
     ruleorder: retrieve_osm_clean > clean_osm_data
 
 
+# retrieving shapes data for CI test and bypassing build_shapes rule
+if (
+    config["countries"] == ["US"]
+    and config["retrieve_precomputed"].get("shapes", False)
+    and config.get("test_region")
+):
+
+    rule build_test_shapes:
+        input:
+            emm_regions=CUSTOM_USA_DATA_DIR
+            + "EIA_market_module_regions/EMM_regions.geojson",
+        output:
+            country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
+            offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
+            gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
+            africa_shape="resources/" + RDIR + "shapes/africa_shape.geojson",
+            extended_country_shape="resources/"
+            + RDIR
+            + "shapes/extended_country_shape.geojson",
+            subregion_shapes="resources/" + RDIR + "shapes/subregion_shapes.geojson",
+            subregion_offshore="resources/" + RDIR + "shapes/subregion_offshore.geojson",
+        params:
+            region=config["test_region"]["region"],
+            region_column=config["test_region"].get("region_column", "egrid_reg"),
+        script:
+            "../scripts/custom/build_test_shapes.py"
+
+    ruleorder: build_test_shapes > build_shapes
+
+
 # retrieving shapes data and bypassing build_shapes rule
-if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
-    "shapes", False
+if (
+    config["countries"] == ["US"]
+    and config["retrieve_precomputed"].get("shapes", False)
+    and not config.get("test_region")
 ):
 
     rule retrieve_shapes:
@@ -223,20 +255,6 @@ if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
     ruleorder: retrieve_base_network > base_network
 
 
-# retrieving elec.nc and bypassing add_electricity rule
-if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
-    "electricity_network", False
-):
-
-    rule retrieve_electricity_network:
-        output:
-            PYPSA_EARTH_DIR + "networks/" + RDIR + "elec.nc",
-        script:
-            "../scripts/custom/retrieve_electricity_network.py"
-
-    ruleorder: retrieve_electricity_network > add_electricity
-
-
 # retrieving renewable_profiles data and bypassing build_renewable_profiles rule
 if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
     "renewable_profiles", False
@@ -265,7 +283,10 @@ if config["countries"] == ["US"]:
         input:
             base_network="networks/" + RDIR + "base.nc",
             pm_config="configs/powerplantmatching_config.yaml",
-            custom_powerplants=CUSTOM_USA_DATA_DIR + "custom_powerplants.csv",
+            custom_powerplants=config["electricity"].get(
+                "custom_powerplants_file",
+                CUSTOM_USA_DATA_DIR + "custom_powerplants.csv",
+            ),
             osm_powerplants="resources/" + RDIR + "osm/clean/all_clean_generators.csv",
             gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
 
@@ -289,31 +310,6 @@ if config["countries"] == ["US"]:
             regions="resources/" + RDIR + "bus_regions/regions_onshore.geojson",
             load=rules.retrieve_ssp2.output.ssp2_northamerica,
             gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
-
-
-if config["retrieve_precomputed"].get("demand_profiles", False):
-
-    rule retrieve_test_demand_profiles:
-        output:
-            demand_profile_path="resources/NA_test/demand_profiles.csv",
-        params:
-            url=config["custom_databundles"]["bundle_demand_profiles_NA_test"]["urls"][
-                "zenodo"
-            ],
-        shell:
-            """
-            mkdir -p resources/NA_test
-            wget -q -O {output.demand_profile_path}.gz {params.url}
-            gunzip -f {output.demand_profile_path}.gz
-            """
-
-    if config["demand_distribution"]["enable"]:
-
-        ruleorder: retrieve_test_demand_profiles > build_demand_profiles_from_eia > build_demand_profiles_custom > build_demand_profiles
-
-    else:
-
-        ruleorder: retrieve_test_demand_profiles > build_demand_profiles_custom > build_demand_profiles
 
 
 if config["countries"] == ["US"]:

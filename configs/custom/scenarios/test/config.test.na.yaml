@@ -1,35 +1,34 @@
 # SPDX-FileCopyrightText: PyPSA-NorthAmerica contributors
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
+
 countries: ["US"]
 
+test_region:
+  region_column: egrid_reg
+  region: TRE
+
 enable:
-  retrieve_databundle: false  #  Recommended 'true', for the first run. Otherwise data might be missing.
+  retrieve_databundle: true
   retrieve_databundle_sector: true
-  retrieve_cost_data: true  # true: retrieves cost data from technology data and saves in resources/costs.csv, false: uses cost data in data/costs.csv
-  download_osm_data: true  # If 'true', OpenStreetMap data will be downloaded for the above given countries
+  retrieve_cost_data: true
+  download_osm_data: true
+  retrieve_cutout: false
+  build_cutout: true
   custom_busmap: false
 
 retrieve_precomputed:
-  demand_profiles: true
-  electricity_network: true
-
-custom_databundles:
-  bundle_demand_profiles_NA_test:
-    countries: [US]
-    category: resources_demand_profiles
-    destination: "resources/NA_test"
-    urls:
-      zenodo: https://zenodo.org/api/records/20846994/files/demand_profiles_test.csv.gz/content
-  bundle_electricity_network_NA_test:
-    countries: [US]
-    category: resources_electricity_network
-    destination: "networks"
-    urls:
-      zenodo: https://zenodo.org/api/records/20846994/files/elec.nc.zip/content
+  cutouts: false
+  osm_raw: false
+  osm_clean: false
+  shapes: true
+  osm_network: false
+  base_network: false
+  renewable_profiles: false
+  demand_profiles: false
 
 run:
-  name: "NA_test" # use this to keep track of runs with different settings
+  name: "NA_test"
   sector_name: "NA_test"
 
 foresight: myopic
@@ -54,21 +53,22 @@ saf_mandate:
   enable_mandate: false # enable SAF mandate
   saf_scenario: EU # EU (default), EU+, EU-
 
+# Keep this off until ERCOT demand mapping is verified.
 demand_distribution:
   enable: false
   base_demand_year: 2023
   holes_area_threshold: 100
-  nprocesses: 4
-  plotting: true
-  set_distribution_fees: false # true, false
+  nprocesses: 2
+  plotting: false
+  set_distribution_fees: false
 
 demand_projection:
   planning_horizon: 2030 # only needed for power model, sector model takes demand from UN data using planning_horizon
   scenario: "Medium"
-  data_centers_load: true
+  data_centers_load: false
 
 policies:
-  state: ["CES", "RES"] # "CES" to adopt State-wise clean electricity generation constraints from currently stated policies, "RES" to adopt State-wise renewable electricity generation constraints from currently stated policies, both to apply both kinds of constraintsAdd commentMore actions
+  state: ["CES", "RES"] # "CES" to adopt State-wise clean electricity generation constraints from currently stated policies, "RES" to adopt State-wise renewable electricity generation constraints from currently stated policies, both to apply both kinds of constraints
   country: [] # "CES" to adopt country-wise clean electricity generation constraint (90% clean electricity by 2040), otherwise empty
 
 custom_industry:
@@ -78,18 +78,25 @@ cluster_options:
   alternative_clustering: false  # "False" use Voronoi shapes, "True" use GADM shapes (only Voronoi clustering is currently supported)
   simplify_network:
     p_threshold_drop_isolated: 0.0
+  aggregation_strategies:
+    lines:
+      tag_type: first
+      tag_frequency: first
+      underground: any
+      under_construction: any
 
 electricity:
   agg_p_nom_limits:
     file: data/custom/usa/agg_p_nom_minmax.csv
   extendable_carriers:
-    Generator: [solar, onwind, offwind-ac, offwind-dc, csp, geothermal, nuclear, OCGT, CCGT, biomass]
+    Generator: [solar, onwind, geothermal, nuclear, OCGT, CCGT, biomass]
     Store: [battery, H2]
 
   custom_powerplants: "replace" #  "false" use only powerplantmatching (ppm) data, "merge" combines ppm and custom powerplants, "replace" use only custom powerplants
+  custom_powerplants_file: data/custom/usa/custom_powerplants_test_TRE.csv
 
   conventional_carriers: [nuclear, oil, OCGT, CCGT, coal, geothermal, biomass]
-  renewable_carriers: [solar, csp, onwind, offwind-ac, offwind-dc, hydro]
+  renewable_carriers: [solar, onwind, hydro]
 
   estimate_renewable_capacities:
     stats: false  # False, = greenfield expansion, 'irena' uses IRENA stats to add expansion limits
@@ -112,22 +119,27 @@ costs:
 
 policy_config:
   hydrogen:
-    temporal_matching: "no_temporal_matching" # either "hourly", "monthly", "yearly", "no_temporal_matching"
+    temporal_matching: "no_temporal_matching"
     additionality: false
-    temporal_matching_carriers: [csp, solar, onwind, offwind-ac, offwind-dc, ror, hydro, nuclear]
+    temporal_matching_carriers: [solar, onwind, ror, hydro, nuclear]
+    h2_production_constraint: false
 
 demand_data:
   base_year: 2021
 
 custom_data:
-  airports: true
+  airports: false
 
 existing_capacities:
-  threshold_capacity: 5 # MW, below this threshold capacities are not added in separate horizon
+  threshold_capacity: 5
 
 sector:
-  electricity_distribution_grid: true
-  conventional_generation: # generator : carrier
+  electricity_distribution_grid: false
+  solar_thermal: false
+  solar_rooftop:
+    enable: false
+
+  conventional_generation:
     OCGT: gas
     CCGT: gas
     oil: oil
@@ -136,7 +148,7 @@ sector:
   hydrogen:
     production_technologies: ["Alkaline electrolyzer large", "PEM electrolyzer", "SOEC", "SMR"]
 
-  cc: false # Default CC technologies from PyPSA-Earth (not influencing ethanol, ammonia, cement and still carbon capture retrofits
+  cc: false
   SMR CC: false
 
   land_transport_fuel_cell_share:
@@ -144,23 +156,23 @@ sector:
     AB_2035: 0.0
     AB_2040: 0.0
   land_transport_electric_share:
-    AB_2030: 0.117
-    AB_2035: 0.201
-    AB_2040: 0.277
+    AB_2030: 0.0
+    AB_2035: 0.0
+    AB_2040: 0.0
   shipping_hydrogen_share:
-    AB_2030: 0.00
-    AB_2035: 0.00
-    AB_2040: 0.00
+    AB_2030: 0.0
+    AB_2035: 0.0
+    AB_2040: 0.0
 
 solving:
   options:
-    load_shedding: false
+    load_shedding: true
   solver:
     name: gurobi
     options: gurobi-default
   solver_options:
     gurobi-default:
-      threads: 8
+      threads: 2
       method: 2 # barrier
       crossover: 0
       BarConvTol: 1.e-4
@@ -168,5 +180,5 @@ solving:
 
 plotting:
   tech_colors:
-    PHS: #036356
-    wind: #6895dd
+    PHS: "#036356"
+    wind: "#6895dd"
