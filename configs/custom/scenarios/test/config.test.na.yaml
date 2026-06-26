@@ -12,20 +12,18 @@ enable:
   retrieve_databundle: true
   retrieve_databundle_sector: true
   retrieve_cost_data: true
-  download_osm_data: true
+  download_osm_data: false
   retrieve_cutout: false
-  build_cutout: true
+  build_cutout: false
   custom_busmap: false
 
 retrieve_precomputed:
   cutouts: false
-  osm_raw: false
-  osm_clean: false
-  shapes: true
-  osm_network: false
-  base_network: false
-  renewable_profiles: false
-  demand_profiles: false
+  osm_raw: true
+  osm_clean: true
+  osm_network: true
+  base_network: true
+  renewable_profiles: true
 
 run:
   name: "NA_test"
