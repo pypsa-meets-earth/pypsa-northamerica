@@ -453,22 +453,38 @@ def map_demands_utilitywise(
     holes_mapped_intersect["area"] = holes_mapped_intersect.area
     holes_mapped_intersect_filter = holes_mapped_intersect.copy()
 
-    holes_mapped_intersect_filter["GADM_ID"] = np.arange(
-        0, len(holes_mapped_intersect_filter), 1
-    )
-    holes_mapped_intersect_filter["GADM_ID"] = holes_mapped_intersect_filter[
-        "GADM_ID"
-    ].astype("str")
-    holes_mapped_intersect_filter["country"] = "US"
-    holes_mapped_intersect_filter["State"] = holes_mapped_intersect_filter.apply(
-        lambda x: x["HASC_1"].split(".")[1], axis=1
-    )
+    if not holes_mapped_intersect_filter.empty:
+        holes_mapped_intersect_filter["GADM_ID"] = np.arange(
+            0, len(holes_mapped_intersect_filter), 1
+        )
+        holes_mapped_intersect_filter["GADM_ID"] = holes_mapped_intersect_filter[
+            "GADM_ID"
+        ].astype("str")
+        holes_mapped_intersect_filter["country"] = "US"
+        holes_mapped_intersect_filter["State"] = holes_mapped_intersect_filter.apply(
+            lambda x: x["HASC_1"].split(".")[1], axis=1
+        )
+
+        build_shapes.add_population_data(
+            holes_mapped_intersect_filter, ["US"], "standard", nprocesses=nprocesses
+        )
+    else:
+        holes_mapped_intersect_filter["GADM_ID"] = pd.Series(
+            dtype="str", index=holes_mapped_intersect_filter.index
+        )
+        holes_mapped_intersect_filter["country"] = pd.Series(
+            dtype="str", index=holes_mapped_intersect_filter.index
+        )
+        holes_mapped_intersect_filter["State"] = pd.Series(
+            dtype="str", index=holes_mapped_intersect_filter.index
+        )
+        holes_mapped_intersect_filter["pop"] = pd.Series(
+            dtype="float64", index=holes_mapped_intersect_filter.index
+        )
+
     if plotting:
         save_map(holes_mapped, filename="Holes_intersect.html", color=False, cmap=False)
 
-    build_shapes.add_population_data(
-        holes_mapped_intersect_filter, ["US"], "standard", nprocesses=nprocesses
-    )
     df_gadm_usa["State"] = df_gadm_usa.apply(lambda x: x["ISO_1"].split("-")[1], axis=1)
     df_gadm_usa["country"] = "US"
     df_gadm_usa["GADM_ID"] = df_gadm_usa["GID_1"]
@@ -504,10 +520,14 @@ def map_demands_utilitywise(
 
     # Compute centroid of the holes
     holes_centroid = holes_mapped_intersect_filter.copy()
-    holes_centroid.geometry = holes_mapped_intersect_filter.geometry.centroid
-    holes_centroid["STATE"] = holes_centroid.apply(
-        lambda x: x["HASC_1"].split(".")[1], axis=1
-    )
+
+    if not holes_centroid.empty:
+        holes_centroid.geometry = holes_mapped_intersect_filter.geometry.centroid
+        holes_centroid["STATE"] = holes_centroid.apply(
+            lambda x: x["HASC_1"].split(".")[1], axis=1
+        )
+    else:
+        holes_centroid["STATE"] = pd.Series(dtype="str", index=holes_centroid.index)
 
     df_final = compute_demand_disaggregation(
         holes_mapped_intersect_filter,
