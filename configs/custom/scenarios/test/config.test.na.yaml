@@ -18,7 +18,7 @@ enable:
   custom_busmap: false
 
 retrieve_precomputed:
-  cutouts: false
+  cutouts: true
   osm_raw: true
   osm_clean: true
   osm_network: true
