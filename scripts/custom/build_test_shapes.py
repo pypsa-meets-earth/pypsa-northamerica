@@ -41,6 +41,8 @@ if __name__ == "__main__":
     test_region["GADM_ID"] = test_region["GID_1"]
     test_region["NAME_0"] = "United States"
     test_region["NAME_1"] = test_region["subregion"].iloc[0]
+    test_region["pop"] = 1_000_000.0
+    test_region["gdp"] = 1_000_000_000.0
 
     output_dir = Path(snakemake.output.country_shapes).parent
     output_dir.mkdir(parents=True, exist_ok=True)

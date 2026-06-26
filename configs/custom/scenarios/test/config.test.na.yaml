@@ -53,7 +53,7 @@ saf_mandate:
 
 # Keep this off until ERCOT demand mapping is verified.
 demand_distribution:
-  enable: false
+  enable: true
   base_demand_year: 2023
   holes_area_threshold: 100
   nprocesses: 2
