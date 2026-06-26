@@ -120,12 +120,12 @@ jobs:
         name: results-${{ matrix.os }}
         # path: ./artifacts  # All artifacts go here, each in their own subfolder
 
-    # TODO Remove after debugging
-    - name: Show downloaded structure
-      run: |
-        echo "Current working directory: $(pwd)"
-        echo "All files and folders after artifact download:"
-        find . -type f -o -type d | sort
+#    # TODO Remove after debugging
+#    - name: Show downloaded structure
+#      run: |
+#        echo "Current working directory: $(pwd)"
+#        echo "All files and folders after artifact download:"
+#        find . -type f -o -type d | sort
 
     - name: Extract objective
       id: extract_obj
