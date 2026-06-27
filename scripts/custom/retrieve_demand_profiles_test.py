@@ -2,10 +2,16 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
+import sys
 import zipfile
 from pathlib import Path
 
-from scripts.custom._helper import configure_logging, progress_retrieve
+sys.path.insert(0, str(Path.cwd()))
+sys.path.insert(0, str(Path.cwd() / "scripts"))
+
+from _helpers import progress_retrieve
+
+from scripts.custom._helper import configure_logging
 
 configure_logging(snakemake)
 
@@ -20,8 +26,12 @@ archive = output.parent / "demand_profiles_test.csv.zip"
 progress_retrieve(url, str(archive))
 
 with zipfile.ZipFile(archive, "r") as zf:
-    zf.extractall(output.parent)
+    zf.extract("demand_profiles.csv", path=output.parent)
 
-(output.parent / "demand_profiles_test.csv").rename(output)
+extracted = output.parent / "demand_profiles.csv"
+if not extracted.exists():
+    raise FileNotFoundError(f"Expected {extracted} after extracting {archive}")
+
+extracted.rename(output)
 
 archive.unlink()
