@@ -324,7 +324,7 @@ if config["countries"] == ["US"]:
 
     if config["retrieve_precomputed"].get("demand_profiles_test", False):
 
-        ruleorder: retrieve_test_demand_profiles > build_demand_profiles_from_eia > build_demand_profiles_custom > build_demand_profiles
+        ruleorder: retrieve_test_demand_profiles > build_demand_profiles_custom > build_demand_profiles
 
     elif config["demand_distribution"]["enable"]:
 
