@@ -387,22 +387,4 @@ if __name__ == "__main__":
             col_out="region_id",
         ).rename(columns={"x": "lon", "y": "lat", "country": "Country"})
 
-    logger.info("powerplants output rows: %s", len(ppl))
-    logger.info("powerplants dtypes before write:\n%s", ppl.dtypes)
-
-    if "Capacity" in ppl.columns:
-        logger.info("Capacity dtype before write: %s", ppl["Capacity"].dtype)
-        logger.info(
-            "Capacity python types before write:\n%s",
-            ppl["Capacity"].map(type).value_counts(),
-        )
-        logger.info(
-            "bad Capacity rows before write: %s",
-            pd.to_numeric(ppl["Capacity"], errors="coerce").isna().sum(),
-        )
-
-    if "bus" in ppl.columns:
-        logger.info("bus dtype before write: %s", ppl["bus"].dtype)
-        logger.info("missing bus rows before write: %s", ppl["bus"].isna().sum())
-
     ppl.to_csv(snakemake.output.powerplants)
