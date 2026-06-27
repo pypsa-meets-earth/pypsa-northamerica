@@ -151,17 +151,11 @@ if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
     ruleorder: retrieve_osm_clean > clean_osm_data
 
 
-# retrieving shapes data for CI test and bypassing build_shapes rule
-if (
-    config["countries"] == ["US"]
-    and config["retrieve_precomputed"].get("shapes", False)
-    and config.get("test_region")
-):
+if config.get("test_geography", {}).get("enable", False):
 
-    rule build_test_shapes:
+    rule build_test_geography_shapes:
         input:
-            emm_regions=CUSTOM_USA_DATA_DIR
-            + "EIA_market_module_regions/EMM_regions.geojson",
+            boundary=config["test_geography"]["boundary"],
         output:
             country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
             offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
@@ -172,20 +166,15 @@ if (
             + "shapes/extended_country_shape.geojson",
             subregion_shapes="resources/" + RDIR + "shapes/subregion_shapes.geojson",
             subregion_offshore="resources/" + RDIR + "shapes/subregion_offshore.geojson",
-        params:
-            region=config["test_region"]["region"],
-            region_column=config["test_region"].get("region_column", "egrid_reg"),
         script:
-            "../scripts/custom/build_test_shapes.py"
+            "../scripts/custom/build_test_geography_shapes.py"
 
-    ruleorder: build_test_shapes > build_shapes
+    ruleorder: build_test_geography_shapes > build_shapes
 
 
 # retrieving shapes data and bypassing build_shapes rule
-if (
-    config["countries"] == ["US"]
-    and config["retrieve_precomputed"].get("shapes", False)
-    and not config.get("test_region")
+if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
+    "shapes", False
 ):
 
     rule retrieve_shapes:
@@ -304,17 +293,6 @@ if config["countries"] == ["US"]:
         script:
             "../scripts/custom/retrieve_ssp2.py"
 
-    if config["retrieve_precomputed"].get("demand_profiles_test", False):
-
-        rule retrieve_demand_profiles_test:
-            output:
-                demand_profile_path=PYPSA_EARTH_DIR
-                + "resources/"
-                + RDIR
-                + "demand_profiles.csv",
-            script:
-                "../scripts/custom/retrieve_demand_profiles_test.py"
-
     use rule build_demand_profiles from pypsa_earth as build_demand_profiles_custom with:
         input:
             base_network="networks/" + RDIR + "base.nc",
@@ -322,11 +300,7 @@ if config["countries"] == ["US"]:
             load=rules.retrieve_ssp2.output.ssp2_northamerica,
             gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
 
-    if config["retrieve_precomputed"].get("demand_profiles_test", False):
-
-        ruleorder: retrieve_demand_profiles_test > build_demand_profiles_custom > build_demand_profiles
-
-    elif config["demand_distribution"]["enable"]:
+    if config["demand_distribution"]["enable"]:
 
         ruleorder: build_demand_profiles_from_eia > build_demand_profiles_custom > build_demand_profiles
 

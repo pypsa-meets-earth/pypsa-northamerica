@@ -85,9 +85,9 @@ jobs:
       with:
         path: |
           data/custom
-          data/ssp2-2.6
-          resources/NA_test
-          networks/NA_test
+          resources/US_small_test
+          networks/US_small_test
+          cutouts/US_small_test
         key: pypsa-na-test-data-${{ runner.os }}-${{ hashFiles('configs/custom/**/*.yaml', 'config*.yaml', 'test/config.test.yaml') }}
         restore-keys: |
           pypsa-na-test-data-${{ runner.os }}-

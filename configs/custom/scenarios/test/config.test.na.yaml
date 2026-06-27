@@ -4,9 +4,13 @@
 
 countries: ["US"]
 
-test_region:
-  region_column: egrid_reg
-  region: TRE
+test_geography:
+  enable: true
+  boundary: data/custom/usa/test_geometries/us_small.geojson
+
+run:
+  name: "US_small_test"
+  sector_name: "US_small_test"
 
 enable:
   retrieve_databundle: true
@@ -20,23 +24,11 @@ enable:
 retrieve_precomputed:
   cutouts: false
   osm_raw: true
-  osm_clean: true
-  osm_network: true
-  base_network: true
-  renewable_profiles: true
-  demand_profiles_test: true
-
-custom_databundles:
-  bundle_demand_profiles_test:
-    countries: [US]
-    category: resources_demand_profiles
-    destination: "resources"
-    urls:
-      zenodo: https://zenodo.org/api/records/20942411/files/demand_profiles_test.csv.zip/content
-
-run:
-  name: "NA_test"
-  sector_name: "NA_test"
+  osm_clean: false
+  osm_network: false
+  shapes: false
+  base_network: false
+  renewable_profiles: false
 
 foresight: myopic
 
@@ -62,7 +54,7 @@ saf_mandate:
 
 # Keep this off until ERCOT demand mapping is verified.
 demand_distribution:
-  enable: false
+  enable: true
   base_demand_year: 2023
   holes_area_threshold: 100
   nprocesses: 2
@@ -100,7 +92,7 @@ electricity:
     Store: [battery, H2]
 
   custom_powerplants: "replace" #  "false" use only powerplantmatching (ppm) data, "merge" combines ppm and custom powerplants, "replace" use only custom powerplants
-  custom_powerplants_file: data/custom/usa/custom_powerplants_test_TRE.csv
+  custom_powerplants_file: data/custom/usa/custom_powerplants_test_US_small.csv
 
   conventional_carriers: [nuclear, oil, OCGT, CCGT, coal, geothermal, biomass]
   renewable_carriers: [solar, onwind, hydro]
