@@ -306,14 +306,14 @@ if config["countries"] == ["US"]:
 
     if config["retrieve_precomputed"].get("demand_profiles_test", False):
 
-        rule retrieve_test_demand_profiles:
+        rule retrieve_demand_profiles_test:
             output:
                 demand_profile_path=PYPSA_EARTH_DIR
                 + "resources/"
                 + RDIR
                 + "demand_profiles.csv",
             script:
-                "../scripts/custom/retrieve_test_demand_profiles.py"
+                "../scripts/custom/retrieve_demand_profiles_test.py"
 
     use rule build_demand_profiles from pypsa_earth as build_demand_profiles_custom with:
         input:
@@ -324,7 +324,7 @@ if config["countries"] == ["US"]:
 
     if config["retrieve_precomputed"].get("demand_profiles_test", False):
 
-        ruleorder: retrieve_test_demand_profiles > build_demand_profiles_custom > build_demand_profiles
+        ruleorder: retrieve_demand_profiles_test > build_demand_profiles_custom > build_demand_profiles
 
     elif config["demand_distribution"]["enable"]:
 
