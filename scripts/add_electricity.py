@@ -741,21 +741,9 @@ def attach_conventional_generators(
     # Aggregate power plants by (bus, carrier, grouping_year)
     ppl_grouped = aggregate_ppl_by_bus_carrier_year(ppl)
 
-    capacity_by_carrier = ppl.groupby("carrier")["p_nom"].sum().div(1e3)
-
-    logger.info("pandas version: %s", pd.__version__)
-    logger.info("ppl.p_nom dtype: %s", ppl["p_nom"].dtype)
-    logger.info("ppl.p_nom python types:\n%s", ppl["p_nom"].map(type).value_counts())
-    logger.info("capacity_by_carrier dtype: %s", capacity_by_carrier.dtype)
-    logger.info(
-        "capacity_by_carrier python types:\n%s",
-        capacity_by_carrier.map(type).value_counts(),
-    )
-    logger.info("capacity_by_carrier before round:\n%s", capacity_by_carrier)
-
     logger.info(
         "Adding {} existing generators with capacities [GW] \n{}".format(
-            len(ppl), capacity_by_carrier.round(2)
+            len(ppl), ppl.groupby("carrier").p_nom.sum().div(1e3).round(2)
         )
     )
 
