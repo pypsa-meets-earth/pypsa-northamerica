@@ -293,21 +293,6 @@ if config["countries"] == ["US"]:
         script:
             "../scripts/custom/retrieve_ssp2.py"
 
-    use rule build_demand_profiles from pypsa_earth as build_demand_profiles_custom with:
-        input:
-            base_network="networks/" + RDIR + "base.nc",
-            regions="resources/" + RDIR + "bus_regions/regions_onshore.geojson",
-            load=rules.retrieve_ssp2.output.ssp2_northamerica,
-            gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
-
-    if config["demand_distribution"]["enable"]:
-
-        ruleorder: build_demand_profiles_from_eia > build_demand_profiles_custom > build_demand_profiles
-
-    else:
-
-        ruleorder: build_demand_profiles_custom > build_demand_profiles
-
 
 if config["countries"] == ["US"]:
 
@@ -414,7 +399,7 @@ if config["demand_distribution"]["enable"]:
         script:
             "../scripts/custom/build_demand_profiles_from_eia.py"
 
-    ruleorder: build_demand_profiles_from_eia > build_demand_profiles_custom > build_demand_profiles
+    ruleorder: build_demand_profiles_from_eia > build_demand_profiles
 
 
 if config["saf_mandate"]["ekerosene_split"]:

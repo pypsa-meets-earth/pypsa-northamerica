@@ -71,7 +71,7 @@ policies:
   country: [] # "CES" to adopt country-wise clean electricity generation constraint (90% clean electricity by 2040), otherwise empty
 
 custom_industry:
-  CCS_retrofit: [ethanol, ammonia, steel, cement]
+  enable: false
 
 cluster_options:
   alternative_clustering: false  # "False" use Voronoi shapes, "True" use GADM shapes (only Voronoi clustering is currently supported)
