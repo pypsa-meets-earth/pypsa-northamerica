@@ -134,8 +134,12 @@ jobs:
         shopt -s nullglob
 
         OBJ_STRING="(?<=INFO:__main__:Objective function: ).*"
-        LOG_FILES=(./logs/solve_network/*_python.log ./logs/*/solve_network/*_python.log)
-        echo "Extracting the objective values from the logs"
+        LOG_FILES=(
+          ./logs/solve_network/*_python.log
+          ./logs/*/solve_network/*_python.log
+          ./results/*/logs/*_python.log
+        )
+        echo "Solver log files: ${LOG_FILES[*]}"
         echo "Solver log files: $LOG_FILES"
         OBJ_FOUND=$(
           awk '/INFO:__main__:Objective function: /{
@@ -202,10 +206,12 @@ jobs:
           BASENAME=$(basename "$FILE")
 
           # An enclosing folder contains a name of the run
-          FOLDER=$(echo "$FILE" | sed -E 's|.*/logs/([^/]+)/solve_network/.*|\1|')
-
-          if [[ "$FILE" == ./logs/solve_network/* ]]; then
+          if [[ "$FILE" == ./results/*/logs/* ]]; then
+            FOLDER=$(echo "$FILE" | sed -E 's|./results/([^/]+)/logs/.*|\1|')
+          elif [[ "$FILE" == ./logs/solve_network/* ]]; then
             FOLDER="default"
+          else
+            FOLDER=$(echo "$FILE" | sed -E 's|.*/logs/([^/]+)/solve_network/.*|\1|')
           fi
 
           VALUE_RAW=$(awk -v v="$VALUE" 'BEGIN { printf "%.2f\n", v }')
