@@ -17,7 +17,7 @@ enable:
   retrieve_databundle_sector: true
   retrieve_cost_data: true
   download_osm_data: true
-  retrieve_cutout: true # must be true for CI tests
+  retrieve_cutout: false # must be true for CI tests
   build_cutout: false
   custom_busmap: false
 
@@ -38,7 +38,7 @@ scenario:
   clusters: [10]
   opts: [CCL-24H]
   planning_horizons:
-  - 2040
+  - 2030
   sopts:
   - "24H"
 
@@ -165,17 +165,18 @@ sector:
 
 solving:
   options:
-    load_shedding: true
+    load_shedding: false
   solver:
-    name: gurobi
-    options: gurobi-default
+    name: highs
+    options: highs-default
   solver_options:
-    gurobi-default:
-      threads: 2
-      method: 2 # barrier
-      crossover: 0
-      BarConvTol: 1.e-4
-      BarHomogeneous: 1
+    highs-default:
+      # refer to https://ergo-code.github.io/HiGHS/dev/options/definitions/
+      threads: 4
+      solver: "ipm"
+      run_crossover: "off"
+      parallel: "on"
+      random_seed: 123
 
 plotting:
   tech_colors:
