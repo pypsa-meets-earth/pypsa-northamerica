@@ -46,7 +46,11 @@ jobs:
       run: |
         # Collect log files where to search for objective values
         shopt -s nullglob
-        LOG_FILES=(./logs/solve_network/*_python.log ./logs/*/solve_network/*_python.log)
+        LOG_FILES=(
+          ./logs/solve_network/*_python.log
+          ./logs/*/solve_network/*_python.log
+          ./results/*/logs/*_python.log
+        )
         OBJ_FOUND=$(
           awk '/INFO:__main__:Objective function: /{
                  sub(/\r$/, "");
@@ -79,10 +83,13 @@ jobs:
           FILE=$(echo "$line" | cut -d: -f1)
           VALUE=$(echo "$line" | cut -d: -f2-)
           BASENAME=$(basename "$FILE")
+        if [[ "$FILE" == ./results/*/logs/* ]]; then
+          FOLDER=$(echo "$FILE" | sed -E 's|./results/([^/]+)/logs/.*|\1|')
+        elif [[ "$FILE" == ./logs/solve_network/* ]]; then
+          FOLDER="default"
+        else
           FOLDER=$(echo "$FILE" | sed -E 's|.*/logs/([^/]+)/solve_network/.*|\1|')
-          if [[ "$FILE" == ./logs/solve_network/* ]]; then
-            FOLDER="default"
-          fi
+        fi
           VALUE_RAW=$(awk -v v="$VALUE" 'BEGIN { printf "%.2f\n", v }')
           printf "%s,%s,%s\n" "$FOLDER" "$BASENAME" "$VALUE_RAW" >> updated_obj_ref.csv
         done <<< "$OBJ_FOUND"
