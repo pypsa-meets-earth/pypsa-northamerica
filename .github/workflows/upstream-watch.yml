@@ -5,12 +5,16 @@ on:
   - cron: "0 7 * * 1"
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   upstream-watch:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0
         ref: main
@@ -25,6 +29,50 @@ jobs:
       run: |
         python -m pip install pyyaml
 
-    - name: Check watched upstream files
+    - name: Generate upstream watch report
       run: |
-        python scripts/dev/check_upstream_watchlist.py
+        python scripts/dev/check_upstream_watchlist.py > maintenance/upstream-watch-report.md || true
+
+    - name: Configure git
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Try upstream merge
+      id: merge
+      continue-on-error: true
+      run: |
+        git merge --no-edit upstream/main
+
+    - name: Add conflict report
+      if: steps.merge.outcome == 'failure'
+      run: |
+        git status --short > maintenance/upstream-merge-conflicts.txt
+        git merge --abort
+
+    - name: Create sync candidate PR
+      if: steps.merge.outcome == 'success'
+      uses: peter-evans/create-pull-request@v7
+      with:
+        branch: chore/upstream-sync-candidate
+        delete-branch: true
+        title: "Sync upstream main"
+        commit-message: "Merge upstream main"
+        body-path: maintenance/upstream-watch-report.md
+        labels: maintenance, upstream-sync
+
+    - name: Create conflict report PR
+      if: steps.merge.outcome == 'failure'
+      uses: peter-evans/create-pull-request@v7
+      with:
+        branch: chore/upstream-sync-conflicts
+        delete-branch: true
+        title: "Upstream sync has conflicts"
+        commit-message: "Report upstream sync conflicts"
+        body: |
+          Upstream merge failed and requires manual conflict resolution.
+
+          See `maintenance/upstream-merge-conflicts.txt`.
+
+          Watched-file report: `maintenance/upstream-watch-report.md`.
+        labels: maintenance, upstream-sync
