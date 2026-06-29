@@ -134,7 +134,13 @@ existing_capacities:
 
 sector:
   electricity_distribution_grid: false
-  solar_thermal: false
+  solar_thermal_collector:
+    enable: false
+    cf_correction: 0.788457
+    clearsky_model: simple
+    orientation:
+      slope: 45.
+      azimuth: 180.
   solar_rooftop:
     enable: false
 
