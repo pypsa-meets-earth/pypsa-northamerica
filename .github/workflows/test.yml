@@ -41,7 +41,7 @@ jobs:
         shell: bash -l {0}
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Use base env file if it was changed
       run: |
@@ -67,7 +67,7 @@ jobs:
         conda-remove-defaults: true
 
     - name: Cache Conda env
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ${{ env.CONDA }}/envs
         key: conda-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles(format('{0}', env.env_file)) }}
@@ -81,7 +81,7 @@ jobs:
       run: conda list
 
     - name: Cache test data
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: |
           data/custom
