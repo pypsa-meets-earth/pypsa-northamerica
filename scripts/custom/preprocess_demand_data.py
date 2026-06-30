@@ -537,7 +537,10 @@ def map_demands_utilitywise(
         df_gadm_usa,
     )
 
-    df_final = df_final._append(df_erst_gpd.rename(columns={"STATE": "State"}))
+    df_final = pd.concat(
+        [df_final, df_erst_gpd.rename(columns={"STATE": "State"})],
+        ignore_index=True,
+    )
 
     # error percentages of unmet demand after assigning average demand to states
     df_error = calc_percentage_unmet_demand_by_state(
