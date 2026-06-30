@@ -44,6 +44,19 @@ jobs:
     steps:
     - uses: actions/checkout@v7
 
+    - name: Free disk space
+      if: runner.os == 'Linux'
+      run: |
+        echo "Disk before cleanup:"
+        df -h
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /opt/ghc
+        sudo rm -rf /opt/hostedtoolcache/CodeQL
+        docker system prune -af || true
+        echo "Disk after cleanup:"
+        df -h
+
     - name: Use base env file if it was changed
       run: |
         git fetch origin main
@@ -92,6 +105,14 @@ jobs:
         key: pypsa-na-test-data-${{ runner.os }}-${{ hashFiles('configs/custom/**/*.yaml', 'config*.yaml', 'test/config.test.yaml') }}
         restore-keys: |
           pypsa-na-test-data-${{ runner.os }}-
+
+    - name: Disk usage before test
+      if: always()
+      run: |
+        df -h
+        du -h -d 1 . | sort -h || true
+        du -h -d 1 ~/.cache | sort -h || true
+        du -h -d 1 "$CONDA/envs" | sort -h || true
 
     - name: Run Test
       run: make test
@@ -256,7 +277,7 @@ jobs:
         os: [ubuntu, macos, windows]
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - uses: prefix-dev/setup-pixi@v0.8.3
       with:
