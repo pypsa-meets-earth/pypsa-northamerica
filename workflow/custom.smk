@@ -631,6 +631,8 @@ if config["foresight"] == "myopic":
 if config["demand_distribution"]["set_distribution_fees"]:
 
     use rule prepare_sector_network from pypsa_earth as prepare_sector_network_custom with:
+        params:
+            co2_budget=config["co2_budget"],
         output:
             PYPSA_EARTH_DIR
             + RESDIR
