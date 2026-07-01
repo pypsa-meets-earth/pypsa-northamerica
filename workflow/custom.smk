@@ -630,15 +630,13 @@ if config["foresight"] == "myopic":
 
 if config["demand_distribution"]["set_distribution_fees"]:
 
-    use rule prepare_sector_network from pypsa_earth as prepare_sector_network_custom with:
-        params:
-            co2_budget=config["co2_budget"],
+    use rule prepare_sector_network from pypsa_earth as prepare_sector_network_distribution_fees_custom with:
         output:
             PYPSA_EARTH_DIR
             + RESDIR
             + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_distribution_fees.nc",
 
-    ruleorder: prepare_sector_network_custom > prepare_sector_network
+    ruleorder: prepare_sector_network_distribution_fees_custom > prepare_sector_network
 
     rule set_distribution_fees:
         params:
@@ -658,8 +656,7 @@ if config["demand_distribution"]["set_distribution_fees"]:
         script:
             "../scripts/custom/set_distribution_fees.py"
 
-    ruleorder: set_distribution_fees > prepare_sector_network
-    ruleorder: prepare_sector_network_custom > prepare_sector_network
+    ruleorder: set_distribution_fees > prepare_sector_network_distribution_fees_custom
 
 
 if config["foresight"] == "overnight" and config["state_policy"] != "off":
