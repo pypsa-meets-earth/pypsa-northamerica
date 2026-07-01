@@ -9,11 +9,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 ## Development Status: **Under development and Active**
 
 [![Test workflows](https://github.com/pypsa-meets-earth/pypsa-northamerica/actions/workflows/test.yml/badge.svg)](https://github.com/pypsa-meets-earth/pypsa-northamerica/actions/workflows/test.yml)
-![Size](https://img.shields.io/github/repo-size/pypsa-meets-earth/pypsa-northamerica)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![REUSE status](https://api.reuse.software/badge/github.com/pypsa-meets-earth/pypsa-northamerica)](https://api.reuse.software/info/github.com/pypsa-meets-earth/pypsa-northamerica)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/pypsa-meets-earth/pypsa-northamerica/main.svg)](https://results.pre-commit.ci/latest/github/pypsa-meets-earth/pypsa-northamerica/main)
 [![Discord](https://img.shields.io/discord/911692131440148490?logo=discord)](https://discord.gg/AnuJBk23FU)
 [![Input data](https://img.shields.io/badge/Input%20data-Zenodo-1682D4?logo=zenodo&logoColor=white)](https://zenodo.org/records/20762977)
 
