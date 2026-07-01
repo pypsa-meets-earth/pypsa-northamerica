@@ -1922,7 +1922,7 @@ def hydrogen_temporal_constraint(n, additionality, time_period):
 
             n.model.add_constraints(
                 lhs >= 0.0,
-                name=f"RES_temporal_matching_{str(region).replace(' ', '_')}",
+                name=f"H2_temporal_matching_{str(region).replace(' ', '_')}",
             )
 
     if additionality and len(cohorts) > 0:
@@ -1984,10 +1984,11 @@ def hydrogen_temporal_constraint(n, additionality, time_period):
                 region_token = (
                     str(region).replace(" ", "_").replace(".", "p").replace("-", "_")
                 )
+                year_token = str(int(year))
 
                 n.model.add_constraints(
                     lhs >= 0.0,
-                    name=f"RES_temporal_matching_{region_token}",
+                    name=f"H2_temporal_matching_{region_token}_{year_token}",
                 )
 
 
