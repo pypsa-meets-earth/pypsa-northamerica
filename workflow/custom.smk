@@ -656,7 +656,7 @@ if config["demand_distribution"]["set_distribution_fees"]:
         script:
             "../scripts/custom/set_distribution_fees.py"
 
-    ruleorder: set_distribution_fees > prepare_sector_network_distribution_fees_custom
+    ruleorder: set_distribution_fees > prepare_sector_network_distribution_fees_custom > prepare_sector_network
 
 
 if config["foresight"] == "overnight" and config["state_policy"] != "off":
