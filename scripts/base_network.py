@@ -576,5 +576,12 @@ if __name__ == "__main__":
     )
 
     n.buses = pd.DataFrame(n.buses.drop(columns="geometry"))
+
+    for component in n.iterate_components():
+        static = component.df
+        string_cols = static.select_dtypes(include=["string"]).columns
+        if len(string_cols):
+            static[string_cols] = static[string_cols].astype(object)
+
     n.meta = snakemake.config
     n.export_to_netcdf(snakemake.output[0])
