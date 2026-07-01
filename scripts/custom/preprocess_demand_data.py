@@ -139,10 +139,7 @@ def compute_demand_disaggregation(
             holes_state["Sales (Megawatthours)"] = (
                 holes_state["pop"] * avg_per_capita_demand
             )
-            df_final = pd.concat(
-                [df_final, holes_state],
-                ignore_index=True,
-            )
+            df_final = df_final._append(holes_state, ignore_index=True)
 
     return df_final
 
@@ -230,7 +227,7 @@ def rescale_demands(df_final, df_demand_utility, df_additional_sales_data):
         df_demand_utility.groupby("State")["Sales (Megawatthours)"].sum()
         + df_additional_sales_data
     )
-    df_final["rescaling_factor"] = 0.0
+    df_final["rescaling_factor"] = 0
     for state in df_demand_statewise.index:
         actual_state_demand = df_demand_statewise.loc[state]
         df_filter_final = df_final.query("State == @state")
