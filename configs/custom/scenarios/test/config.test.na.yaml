@@ -39,7 +39,6 @@ scenario:
   opts: [CCL-168H]
   planning_horizons:
   - 2030
-  - 2035
   sopts:
   - "168H"
 
