@@ -36,11 +36,12 @@ scenario:
   simpl: ['']
   ll: ['v1']
   clusters: [10]
-  opts: [CCL-24H]
+  opts: [CCL-168H]
   planning_horizons:
   - 2030
+  - 2035
   sopts:
-  - "24H"
+  - "168H"
 
 aviation_demand_scenario:
   country: US
