@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 import os
+from pathlib import Path
 
 import country_converter as coco
 import pandas as pd
@@ -21,11 +22,14 @@ def download_urban_percent():
     Downloads the United Nations "Total and urban population, annual" .7z File
     and extracts it as csv File.
 
+    If the remote download fails, use a local fallback file.
+
     The above file was downloaded from the webpage
     https://unctadstat.unctad.org/datacentre/
     as a .7z file. The dataset contains urban percent for most countries from 1950 and predictions until 2050.
     """
     url = "https://unctadstat-api.unctad.org/bulkdownload/US.PopTotal/US_PopTotal"
+    fallback_path = Path("data/custom/usa/urban_percent.csv")
 
     # Make a GET request to the URL
     response = requests.get(url)
@@ -49,7 +53,7 @@ def download_urban_percent():
         with py7zr.SevenZipFile(filename, "r") as archive:
             archive.extractall()
 
-        print(f"Urban percent extracted successfully")
+        print("Urban percent extracted successfully")
 
         # Read the extracted CSV file
         csv_filename = os.path.splitext(filename)[
@@ -63,10 +67,17 @@ def download_urban_percent():
         os.remove(filename)
         os.remove(csv_filename)
 
-    else:
-        print(f"Failed to download file: Status code {response.status_code}")
+        return urban_percent_orig
 
-    return urban_percent_orig
+    print(f"Failed to download file: Status code {response.status_code}")
+
+    if fallback_path.exists():
+        print(f"Using local urban percent fallback: {fallback_path}")
+        return read_csv_nafix(fallback_path)
+
+    raise RuntimeError(
+        f"Failed to download urban percent and fallback file is missing: {fallback_path}"
+    )
 
 
 if __name__ == "__main__":
@@ -76,6 +87,14 @@ if __name__ == "__main__":
         snakemake = mock_snakemake("prepare_urban_percent")
 
     df = download_urban_percent().copy()
+
+    # If the fallback file is used, it is already in the final format.
+    if "country" in df.columns:
+        df = df.set_index("country")
+
+        # Save
+        df.to_csv(snakemake.output[0], sep=",", encoding="utf-8", header="true")
+        raise SystemExit(0)
 
     # Select the columns that we need to keep
     df = df[
