@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v7
       with:
         fetch-depth: 0
         ref: main
@@ -56,7 +56,7 @@ jobs:
 
     - name: Upload upstream watch reports
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: upstream-watch-reports
         path: .upstream-watch/
@@ -70,7 +70,7 @@ jobs:
 
     - name: Create sync candidate PR
       if: steps.merge.outcome == 'success'
-      uses: peter-evans/create-pull-request@v7
+      uses: peter-evans/create-pull-request@v8
       with:
         branch: chore/upstream-sync-candidate
         delete-branch: true
