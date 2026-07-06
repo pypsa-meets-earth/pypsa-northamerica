@@ -2,8 +2,27 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
+countries: ["US"]
+
 validation:
   planning_horizon: [2020]
+
+scenario:
+  simpl: [""]
+  ll: ['v1']
+  opts: [CCL-3H]
+  planning_horizons: [2030, 2035, 2040]
+  clusters: [100]
+  sopts: ["3H"]
+
+foresight: myopic
+
+enable:
+  download_osm_data: true
+  retrieve_cost_data: true
+  retrieve_databundle: false
+  custom_busmap: true
+  retrieve_databundle_sector: true
 
 # retrieving precomputed files from Google Drive and bypassing re-execution
 retrieve_precomputed:
@@ -41,7 +60,31 @@ costs:
     CCGT: 45
     OCGT: 45
 
+electricity:
+  agg_p_nom_limits:
+    file: data/custom/usa/agg_p_nom_minmax.csv
+  extendable_carriers:
+    Generator: [solar, onwind, offwind-ac, offwind-dc, csp, geothermal, nuclear, OCGT, CCGT, biomass]
+    Store: [battery, H2]
+
+  custom_powerplants: "replace" #  "false" use only powerplantmatching (ppm) data, "merge" combines ppm and custom powerplants, "replace" use only custom powerplants
+
+  conventional_carriers: [nuclear, oil, OCGT, CCGT, coal, geothermal, biomass]
+  renewable_carriers: [solar, csp, onwind, offwind-ac, offwind-dc, hydro]
+
+  estimate_renewable_capacities:
+    stats: false  # False, = greenfield expansion, 'irena' uses IRENA stats to add expansion limits
+
+renewable:
+  hydro:
+    normalization:
+      method: eia
+    hydro_capital_cost: true
+
 cluster_options:
+  alternative_clustering: false # "False" use Voronoi shapes, "True" use GADM shapes (only Voronoi clustering is currently supported)
+  simplify_network:
+    p_threshold_drop_isolated: 0.0
   aggregation_strategies:
     lines:
       tag_type: first
@@ -58,6 +101,9 @@ aviation_demand_scenario:
   country: US
   scenario: central # low, central or high
 
+custom_data:
+  airports: true
+
 saf_mandate:
   ekerosene_split: true # separate e-kerosene as separate bus
   non_spatial_ekerosene: true # connects all e-kerosene buses with a single E-kerosene-main bus to model 0 cost of transport and store
@@ -72,10 +118,16 @@ demand_distribution:
   plotting: true
   set_distribution_fees: true # true, false
 
+demand_data:
+  base_year: 2021
+
 demand_projection:
   planning_horizon: 2023
   scenario: "Medium"
   data_centers_load: true
+
+existing_capacities:
+  threshold_capacity: 5  # MW, below this threshold capacities are not added in separate horizon
 
 state_policy: "on" # "off", "on" manage application of renewable/clean energy policies at State- or country-level
 
@@ -181,3 +233,17 @@ custom_databundles:
     destination: "data/custom/usa"
     urls:
       zenodo: https://zenodo.org/api/records/20942411/files/demand_data.zip/content
+
+solving:
+  options:
+    load_shedding: false
+  solver:
+    name: gurobi
+    options: gurobi-default
+  solver_options:
+    gurobi-default:
+      threads: 8
+      method: 2 # barrier
+      crossover: 0
+      BarConvTol: 1.e-4
+      BarHomogeneous: 1

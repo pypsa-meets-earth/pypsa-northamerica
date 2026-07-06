@@ -16,42 +16,12 @@
 # | Power sector development | Transmission expansion                    | Optimal transmission expansion                                   |
 # |                          | State policies for electricity generation | Current policies + 90% clean electricity by 2040 (country level) |
 
-countries: ["US"]
-
-enable:
-  retrieve_databundle: false  #  Recommended 'true', for the first run. Otherwise data might be missing.
-  retrieve_databundle_sector: true
-  retrieve_cost_data: true  # true: retrieves cost data from technology data and saves in resources/costs.csv, false: uses cost data in data/costs.csv
-  download_osm_data: true  # If 'true', OpenStreetMap data will be downloaded for the above given countries
-  custom_busmap: true
-
 run:
   name: "US_scenario_06" # use this to keep track of runs with different settings
   sector_name: "US_scenario_06"
 
-foresight: myopic
-
 scenario:
-  simpl: ['']
   ll: ['copt']
-  clusters: [100]
-  opts: [CCL-3H]
-  planning_horizons:
-  - 2030
-  - 2035
-  - 2040
-  sopts:
-  - "3H"
-
-aviation_demand_scenario:
-  country: US
-  scenario: central # low, central or high
-
-saf_mandate:
-  ekerosene_split: true # separate e-kerosene as separate bus
-  non_spatial_ekerosene: true # connects all e-kerosene buses with a single E-kerosene-main bus to model 0 cost of transport and store
-  enable_mandate: true # enable SAF mandate
-  saf_scenario: EU # EU (default), EU+, EU-
 
 demand_projection:
   planning_horizon: 2030 # only needed for power model, sector model takes demand from UN data using planning_horizon
@@ -71,32 +41,6 @@ line_expansion_limits: # from DOE NTL Study
 custom_industry:
   biogenic_co2: true
 
-cluster_options:
-  alternative_clustering: false  # "False" use Voronoi shapes, "True" use GADM shapes (only Voronoi clustering is currently supported)
-  simplify_network:
-    p_threshold_drop_isolated: 0.0
-
-electricity:
-  agg_p_nom_limits:
-    file: data/custom/usa/agg_p_nom_minmax.csv
-  extendable_carriers:
-    Generator: [solar, onwind, offwind-ac, offwind-dc, csp, geothermal, nuclear, OCGT, CCGT, biomass]
-    Store: [battery, H2]
-
-  custom_powerplants: "replace" #  "false" use only powerplantmatching (ppm) data, "merge" combines ppm and custom powerplants, "replace" use only custom powerplants
-
-  conventional_carriers: [nuclear, oil, OCGT, CCGT, coal, geothermal, biomass]
-  renewable_carriers: [solar, csp, onwind, offwind-ac, offwind-dc, hydro]
-
-  estimate_renewable_capacities:
-    stats: false  # False, = greenfield expansion, 'irena' uses IRENA stats to add expansion limits
-
-renewable:
-  hydro:
-    normalization:
-      method: eia
-    hydro_capital_cost: true
-
 costs:
   year: 2030
   cost_scenario: "moderate" # only used if `country_specific_data: "US"`; can be "moderate", "advanced" or "conservative"
@@ -114,15 +58,6 @@ policy_config:
     temporal_matching_carriers: [csp, solar, onwind, offwind-ac, offwind-dc, ror, hydro, nuclear]
     h2_production_constraint: true
     h2_production_limits: data/h2_prod_minmax.csv
-
-demand_data:
-  base_year: 2021
-
-custom_data:
-  airports: true
-
-existing_capacities:
-  threshold_capacity: 5 # MW, below this threshold capacities are not added in separate horizon
 
 sector:
   electricity_distribution_grid: true
@@ -150,22 +85,3 @@ sector:
     AB_2030: 0.00
     AB_2035: 0.00
     AB_2040: 0.00
-
-solving:
-  options:
-    load_shedding: false
-  solver:
-    name: gurobi
-    options: gurobi-default
-  solver_options:
-    gurobi-default:
-      threads: 8
-      method: 2 # barrier
-      crossover: 0
-      BarConvTol: 1.e-4
-      BarHomogeneous: 1
-
-plotting:
-  tech_colors:
-    PHS: #036356
-    wind: #6895dd
