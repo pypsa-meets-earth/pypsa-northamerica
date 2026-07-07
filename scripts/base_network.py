@@ -475,6 +475,7 @@ def _set_countries_and_substations(inputs, base_network_config, countries_config
     return buses
 
 
+# PyPSA-NorthAmerica:
 def _add_custom_line_types(n, lines_config):
     """
     Add custom line types to the PyPSA line type register.

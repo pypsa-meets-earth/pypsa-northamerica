@@ -236,6 +236,7 @@ if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
             + "base_network/all_transformers_build_network.csv",
             country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
             offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
+            line_types=config["lines"].get("custom_line_types", []),
         output:
             PYPSA_EARTH_DIR + "networks/" + RDIR + "base.nc",
         script:
