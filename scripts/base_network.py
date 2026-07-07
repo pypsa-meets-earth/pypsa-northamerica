@@ -475,6 +475,46 @@ def _set_countries_and_substations(inputs, base_network_config, countries_config
     return buses
 
 
+def _add_custom_line_types(n, lines_config):
+    """
+    Add custom line types to the PyPSA line type register.
+
+    Parameters
+    ----------
+    n : pypsa.Network
+        Network whose line type register is extended.
+    lines_config : dict
+        Line configuration. If ``custom_line_types`` is set, it must point to a
+        CSV file containing PyPSA-compatible line type parameters.
+    """
+    line_types_path = lines_config.get("custom_line_types")
+
+    if line_types_path is None:
+        return
+
+    line_types = pd.read_csv(line_types_path).set_index("type")
+
+    required_columns = {
+        "f_nom",
+        "r_per_length",
+        "x_per_length",
+        "c_per_length",
+        "i_nom",
+    }
+    missing_columns = required_columns - set(line_types.columns)
+
+    if missing_columns:
+        msg = (
+            f"Custom line type file {line_types_path} is missing columns: "
+            f"{sorted(missing_columns)}"
+        )
+        raise ValueError(msg)
+
+    n.line_types = pd.concat([n.line_types, line_types], axis=0)
+
+    logger.info(f"Added {len(line_types)} custom line types from {line_types_path}.")
+
+
 def base_network(
     inputs,
     base_network_config,
@@ -506,6 +546,8 @@ def base_network(
 
     n = pypsa.Network()
     n.name = "PyPSA-Earth"
+
+    _add_custom_line_types(n, lines_config)
 
     n.set_snapshots(pd.date_range(freq="h", **snapshots_config))
     n.snapshot_weightings[:] *= 8760.0 / n.snapshot_weightings.sum()
