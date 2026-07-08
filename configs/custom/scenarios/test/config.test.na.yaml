@@ -100,6 +100,21 @@ electricity:
   estimate_renewable_capacities:
     stats: false  # False, = greenfield expansion, 'irena' uses IRENA stats to add expansion limits
 
+  voltages: [69., 100., 115., 138., 161., 230., 345., 500., 765.]
+
+lines:
+  custom_line_types: data/custom/usa/transmission_network/line_types.csv
+  ac_types:
+    69.: US_69kV
+    100.: US_100kV
+    115.: US_115kV
+    138.: US_138kV
+    161.: US_161kV
+    230.: US_230kV
+    345.: US_345kV
+    500.: US_500kV
+    765.: US_765kV
+
 renewable:
   hydro:
     normalization:

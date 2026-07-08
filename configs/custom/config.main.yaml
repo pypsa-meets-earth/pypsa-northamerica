@@ -31,8 +31,8 @@ retrieve_precomputed:
   osm_clean: true # if true, bypasses clean_osm_data rule
   shapes: true # if true, bypasses build_shapes rule
   osm_network: true # if true, bypasses build_osm_network rule
-  base_network: false # if true, bypasses base_network rule
-  renewable_profiles: false # if true, bypasses build_renewable_profiles rule
+  base_network: true # if true, bypasses base_network rule
+  renewable_profiles: true # if true, bypasses build_renewable_profiles rule
 
 custom_rules: ["workflow/custom.smk"]
 
@@ -199,7 +199,7 @@ custom_databundles:
     category: resources_osm_raw
     destination: "resources"
     urls:
-      zenodo: https://zenodo.org/api/records/20942411/files/osm_raw.zip/content
+      zenodo: https://zenodo.org/api/records/21256875/files/osm_raw.zip/content
 
   # precomputed clean osm data
   bundle_osm_clean_USA:
@@ -207,7 +207,7 @@ custom_databundles:
     category: resources_osm_clean
     destination: "resources"
     urls:
-      zenodo: https://zenodo.org/api/records/20942411/files/osm_clean.zip/content
+      zenodo: https://zenodo.org/api/records/21256875/files/osm_clean.zip/content
 
   # precomputed shapes data
   bundle_shapes_USA:
@@ -215,7 +215,7 @@ custom_databundles:
     category: resources_shapes
     destination: "resources"
     urls:
-      zenodo: https://zenodo.org/api/records/20942411/files/shapes.zip/content
+      zenodo: https://zenodo.org/api/records/21256875/files/shapes.zip/content
 
   # precomputed osm network data
   bundle_osm_network_USA:
@@ -223,7 +223,7 @@ custom_databundles:
     category: resources_osm_network
     destination: "resources"
     urls:
-      zenodo: https://zenodo.org/api/records/20942411/files/base_network_new_northamerica.zip/content
+      zenodo: https://zenodo.org/api/records/21256875/files/base_network.zip/content
 
   # precomputed base.nc
   bundle_base_network_USA:
@@ -231,7 +231,7 @@ custom_databundles:
     category: resources_base_network
     destination: "resources"
     urls:
-      zenodo: https://zenodo.org/api/records/20942411/files/base_new_northamerica.nc.zip/content
+      zenodo: https://zenodo.org/api/records/21256875/files/base.nc.zip/content
 
   # precomputed renewable_profiles data
   bundle_renewable_profiles_USA:
@@ -239,7 +239,7 @@ custom_databundles:
     category: resources_renewable_profiles
     destination: "resources"
     urls:
-      zenodo: https://zenodo.org/api/records/20942411/files/renewable_profiles_voronoi_new_northamerica.zip/content
+      zenodo: https://zenodo.org/api/records/21256875/files/renewable_profiles.zip/content
 
   # demand data used for demand redistribution
   bundle_demand_data_USA:
@@ -247,7 +247,7 @@ custom_databundles:
     category: data_demand_data
     destination: "data/custom/usa"
     urls:
-      zenodo: https://zenodo.org/api/records/20942411/files/demand_data.zip/content
+      zenodo: https://zenodo.org/api/records/21256875/files/demand_data.zip/content
 
 solving:
   options:
