@@ -6,6 +6,12 @@ SPDX-License-Identifier: CC-BY-4.0
 
 Release Notes
 
+# PyPSA-NorthAmerica
+
+This part of documentation is specific to PyPSA-NorthAmerica and collects descriptive release notes relative to the North-American workflow
+
+* Added representative US transmission line types derived from the Texas A&M ACTIVSg82k synthetic transmission network [PR #31](https://github.com/pypsa-meets-earth/pypsa-northamerica/pull/31)
+
 # Upcoming release
 
 This part of documentation collects descriptive release notes to capture the main improvements introduced by developing the model before the next release.
