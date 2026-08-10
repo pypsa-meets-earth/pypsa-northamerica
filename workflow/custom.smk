@@ -319,7 +319,7 @@ if config["countries"] == ["US"]:
             energy_totals=PYPSA_EARTH_DIR
             + "resources/"
             + SECDIR
-            + "energy_totals_{demand}_{planning_horizons}_aviation_mod.csv",
+            + "energy_totals_{planning_horizons}_aviation_mod.csv",
 
     rule modify_aviation_demand:
         input:
@@ -327,12 +327,12 @@ if config["countries"] == ["US"]:
             energy_totals=PYPSA_EARTH_DIR
             + "resources/"
             + SECDIR
-            + "energy_totals_{demand}_{planning_horizons}_aviation_mod.csv",
+            + "energy_totals_{planning_horizons}_aviation_mod.csv",
         output:
             energy_totals=PYPSA_EARTH_DIR
             + "resources/"
             + SECDIR
-            + "energy_totals_{demand}_{planning_horizons}.csv",
+            + "energy_totals_{planning_horizons}.csv",
         script:
             "../scripts/custom/modify_aviation_demand.py"
 
@@ -413,13 +413,13 @@ if config["saf_mandate"]["ekerosene_split"]:
             network=PYPSA_EARTH_DIR
             + "results/"
             + SECDIR
-            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}.nc",
+            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}.nc",
             saf_scenarios=CUSTOM_USA_DATA_DIR + "saf_blending_rates/saf_scenarios.csv",
         output:
             modified_network=PYPSA_EARTH_DIR
             + "results/"
             + SECDIR
-            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_saf.nc",
+            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_saf.nc",
         script:
             "../scripts/custom/set_saf_mandate.py"
 
@@ -468,7 +468,7 @@ if config["custom_industry"]["enable"]:
             industrial_energy_demand_per_node=PYPSA_EARTH_DIR
             + "resources/"
             + SECDIR
-            + "demand/industrial_energy_demand_per_node_elec_s{simpl}_{clusters}_{planning_horizons}_{demand}_custom_industry.csv",
+            + "demand/industrial_energy_demand_per_node_elec_s{simpl}_{clusters}_{planning_horizons}_custom_industry.csv",
         threads: 1
         resources:
             mem_mb=2000,
@@ -496,11 +496,11 @@ if config["custom_industry"]["enable"]:
             industrial_energy_demand_per_node=PYPSA_EARTH_DIR
             + "resources/"
             + SECDIR
-            + "demand/industrial_energy_demand_per_node_elec_s{simpl}_{clusters}_{planning_horizons}_{demand}_custom_industry.csv",
+            + "demand/industrial_energy_demand_per_node_elec_s{simpl}_{clusters}_{planning_horizons}_custom_industry.csv",
             energy_totals=PYPSA_EARTH_DIR
             + "resources/"
             + SECDIR
-            + "energy_totals_{demand}_{planning_horizons}.csv",
+            + "energy_totals_{planning_horizons}.csv",
             network=lambda w: f"{PYPSA_EARTH_DIR}results/{SECDIR}prenetworks/elec_s{w.simpl}_{w.clusters}_ec_l{w.ll}_{w.opts}_{w.sopts}_{w.planning_horizons}_{w.discountrate}_{w.demand}{saf_suffix}.nc",
             costs=PYPSA_EARTH_DIR
             + "resources/"
@@ -511,7 +511,7 @@ if config["custom_industry"]["enable"]:
             modified_network=PYPSA_EARTH_DIR
             + "results/"
             + SECDIR
-            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_custom_industry.nc",
+            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_custom_industry.nc",
         script:
             "../scripts/custom/add_industry.py"
 
@@ -519,11 +519,11 @@ if config["custom_industry"]["enable"]:
         input:
             export_ports="resources/" + SECDIR + "export_ports.csv",
             costs="resources/" + RDIR + "costs_{planning_horizons}_sec.csv",
-            ship_profile="resources/" + SECDIR + "ship_profile_{h2export}TWh.csv",
+            ship_profile="resources/" + SECDIR + "ship_profile_TWh.csv",
             network=PYPSA_EARTH_DIR
             + "results/"
             + SECDIR
-            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_custom_industry.nc",
+            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_custom_industry.nc",
             shapes_path="resources/"
             + RDIR
             + "bus_regions/regions_onshore_elec_s{simpl}_{clusters}.geojson",
@@ -538,7 +538,7 @@ if config["foresight"] == "overnight":
             # network=RESDIR
             # + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}.nc",
             network=RESDIR
-            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export.nc",
+            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}.nc",
             costs="resources/" + RDIR + "costs_{planning_horizons}_sec.csv",
             configs=PYPSA_EARTH_DIR + SDIR + "configs/config.yaml",  # included to trigger copy_config rule
             overrides=CUSTOM_USA_DATA_DIR + "override_component_attrs",
@@ -552,7 +552,7 @@ if config["foresight"] == "myopic":
     use rule solve_network_myopic from pypsa_earth as solve_network_myopic_custom with:
         input:
             network=RESDIR
-            + "prenetworks-brownfield/elec_s{simpl}_{clusters}_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export.nc",
+            + "prenetworks-brownfield/elec_s{simpl}_{clusters}_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}.nc",
             costs="resources/" + RDIR + "costs_{planning_horizons}_sec.csv",
             configs=PYPSA_EARTH_DIR + SDIR + "configs/config.yaml",  # included to trigger copy_config rule
             overrides=CUSTOM_USA_DATA_DIR + "override_component_attrs",
@@ -589,7 +589,7 @@ if config["foresight"] == "myopic":
             overrides=CUSTOM_USA_DATA_DIR + "override_component_attrs",
             network=PYPSA_EARTH_DIR
             + RESDIR
-            + "prenetworks-brownfield/elec_s{simpl}_{clusters}_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export.nc",
+            + "prenetworks-brownfield/elec_s{simpl}_{clusters}_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}.nc",
             costs=PYPSA_EARTH_DIR
             + "resources/"
             + RDIR
@@ -599,21 +599,21 @@ if config["foresight"] == "myopic":
         output:
             network=PYPSA_EARTH_DIR
             + RESDIR
-            + "postnetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export.nc",
+            + "postnetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}.nc",
             # config=RESDIR
-            # + "configs/config.elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export.yaml",
+            # + "configs/config.elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}.yaml",
         shadow:
             "shallow"
         log:
             solver=PYPSA_EARTH_DIR
             + RESDIR
-            + "logs/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export_solver.log",
+            + "logs/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_solver.log",
             python=PYPSA_EARTH_DIR
             + RESDIR
-            + "logs/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export_python.log",
+            + "logs/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_python.log",
             memory=PYPSA_EARTH_DIR
             + RESDIR
-            + "logs/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export_memory.log",
+            + "logs/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_memory.log",
         threads: 25
         resources:
             mem_mb=config["solving"]["mem"],
@@ -621,7 +621,7 @@ if config["foresight"] == "myopic":
             (
                 PYPSA_EARTH_DIR
                 + RESDIR
-                + "benchmarks/solve_network/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export"
+                + "benchmarks/solve_network/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}"
             )
         script:
             "../scripts/custom/solve_custom_sector_network.py"
@@ -635,7 +635,7 @@ if config["demand_distribution"]["set_distribution_fees"]:
         output:
             PYPSA_EARTH_DIR
             + RESDIR
-            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_distribution_fees.nc",
+            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_distribution_fees.nc",
 
     ruleorder: prepare_sector_network_distribution_fees_custom > prepare_sector_network
 
@@ -649,11 +649,11 @@ if config["demand_distribution"]["set_distribution_fees"]:
             + "EIA_market_module_regions/regional_fees.csv",
             network=PYPSA_EARTH_DIR
             + RESDIR
-            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_distribution_fees.nc",
+            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_distribution_fees.nc",
         output:
             PYPSA_EARTH_DIR
             + RESDIR
-            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}.nc",
+            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}.nc",
         script:
             "../scripts/custom/set_distribution_fees.py"
 
@@ -686,7 +686,7 @@ if config["foresight"] == "overnight" and config["state_policy"] != "off":
             overrides=CUSTOM_USA_DATA_DIR + "override_component_attrs",
             network=PYPSA_EARTH_DIR
             + RESDIR
-            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export.nc",
+            + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}.nc",
             costs=PYPSA_EARTH_DIR
             + "resources/"
             + RDIR
@@ -695,19 +695,19 @@ if config["foresight"] == "overnight" and config["state_policy"] != "off":
         output:
             PYPSA_EARTH_DIR
             + RESDIR
-            + "postnetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export.nc",
+            + "postnetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}.nc",
         shadow:
             "shallow"
         log:
             solver=PYPSA_EARTH_DIR
             + RESDIR
-            + "logs/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export_solver.log",
+            + "logs/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_solver.log",
             python=PYPSA_EARTH_DIR
             + RESDIR
-            + "logs/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export_python.log",
+            + "logs/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_python.log",
             memory=PYPSA_EARTH_DIR
             + RESDIR
-            + "logs/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export_memory.log",
+            + "logs/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_memory.log",
         threads: 25
         resources:
             mem_mb=config["solving"]["mem"],
@@ -715,7 +715,7 @@ if config["foresight"] == "overnight" and config["state_policy"] != "off":
             (
                 PYPSA_EARTH_DIR
                 + RESDIR
-                + "benchmarks/solve_network/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export"
+                + "benchmarks/solve_network/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}"
             )
         script:
             "../scripts/custom/solve_custom_sector_network.py"

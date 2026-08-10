@@ -230,7 +230,7 @@ policy_config:
 
 export:
   endogenous: false # true: export demand is determined endogenously
-  h2export: [0] # yearly export demand in TWh; used only when export.endogenous is false
+  h2export: 0 # yearly export demand in TWh; used only when export.endogenous is false
 
 # ------------------- Sector-coupled demand data -------------------
 demand_data:
@@ -278,6 +278,10 @@ sector:
   demand_projection_reference_year: 2023
   ammonia:
     enable: false
+
+  oil:
+    spatial_oil: true
+    reserves: 0 # TWh per bus: Maybe redundant
 
   # ------------------- Electricity distribution grid -------------------
   solar_rooftop: # adds customer-side rooftop PV; requires electricity_distribution_grid: true
