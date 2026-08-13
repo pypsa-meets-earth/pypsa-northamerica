@@ -95,7 +95,7 @@ jobs:
       run: conda list
 
     - name: Cache test data
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: |
           data/custom
@@ -325,7 +325,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7
 
-    - uses: prefix-dev/setup-pixi@v0.10.0
+    - uses: prefix-dev/setup-pixi@v0.10.1
       with:
         pixi-version: latest
         environments: pypsa-earth
