@@ -281,7 +281,6 @@ sector:
 
   oil:
     spatial_oil: true
-    reserves: 0 # TWh per bus: Maybe redundant
 
   # ------------------- Electricity distribution grid -------------------
   solar_rooftop: # adds customer-side rooftop PV; requires electricity_distribution_grid: true
