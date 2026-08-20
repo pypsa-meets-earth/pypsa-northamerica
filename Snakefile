@@ -38,6 +38,8 @@ copy_default_files()
 
 
 configfile: "config.default.yaml"
+configfile: "configs/plotting.default.yaml"
+configfile: "configs/solving.default.yaml"
 configfile: "configs/bundle_config.yaml"
 configfile: "configs/powerplantmatching_config.yaml"
 configfile: "config.yaml"
@@ -1310,7 +1312,7 @@ rule prepare_sector_network:
             },
         ),
         network="networks/" + RDIR + "elec_s{simpl}_{clusters}_ec_l{ll}_{opts}.nc",
-        costs=("resources/" + RDIR + f"costs_{config['costs']['year']}_sec.csv"),
+        costs="resources/" + RDIR + "costs_{planning_horizons}_sec.csv",
         nodal_energy_totals=branch(
             sector_enable["rail_transport"] or sector_enable["agriculture"],
             "resources/"
@@ -1385,7 +1387,7 @@ rule add_export:
         h2export=config["export"]["h2export"],
     input:
         export_ports="resources/" + SECDIR + "export_ports.csv",
-        costs=("resources/" + RDIR + f"costs_{config['costs']['year']}_sec.csv"),
+        costs="resources/" + RDIR + "costs_{planning_horizons}_sec.csv",
         ship_profile="resources/" + SECDIR + "ship_profile.csv",
         network=RESDIR
         + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}.nc",
@@ -1815,7 +1817,7 @@ if config["foresight"] == "overnight":
         input:
             network=RESDIR
             + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_export.nc",
-            costs=("resources/" + RDIR + f"costs_{config['costs']['year']}_sec.csv"),
+            costs="resources/" + RDIR + "costs_{planning_horizons}_sec.csv",
             configs=SDIR + "configs/config.yaml",  # included to trigger copy_config rule
             agg_p_nom_minmax=config["electricity"]["agg_p_nom_limits"]["file"],  # ensure the CSV with capacity constraints is copied into the shadow directory (needed on Windows, since shadowed scripts can’t access files outside `input`)
         output:
@@ -2322,7 +2324,7 @@ if config["foresight"] == "myopic":
         input:
             network=RESDIR
             + "prenetworks-brownfield/elec_s{simpl}_{clusters}_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}.nc",
-            costs=("resources/" + RDIR + f"costs_{config['costs']['year']}_sec.csv"),
+            costs="resources/" + RDIR + "costs_{planning_horizons}_sec.csv",
             configs=SDIR + "configs/config.yaml",  # included to trigger copy_config rule
             agg_p_nom_minmax=config["electricity"]["agg_p_nom_limits"]["file"],  # ensure the CSV with capacity constraints is copied into the shadow directory (needed on Windows, since shadowed scripts can’t access files outside `input`)
         output:
