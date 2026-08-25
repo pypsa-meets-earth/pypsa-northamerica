@@ -37,6 +37,9 @@ demand_projection:
   data_centers_load: true
 
 # ------------------- Electricity policies -------------------
+
+state_policy: "off" # "off" or "on": apply renewable and clean-energy policies at state or country level
+
 policies:
   state: ["CES", "RES"] # "CES" applies state clean-electricity constraints; "RES" applies state renewable-electricity constraints; use both to apply both kinds
   country: [] # "CES" applies the country clean-electricity constraint (90% clean electricity by 2040); otherwise leave empty
