@@ -131,8 +131,7 @@ custom_databundles:
 
 # =================== GEOGRAPHY & SHAPES ===================
 
-# ------------------- 
-ering -------------------
+# ------------------- Clustering -------------------
 clustering:
   alternative_clustering: true # false: use Voronoi shapes; true: use GADM shapes
   simplify_network:
