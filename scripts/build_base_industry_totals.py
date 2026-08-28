@@ -95,7 +95,6 @@ if __name__ == "__main__":
         snakemake = mock_snakemake(
             "build_base_industry_totals",
             planning_horizons=2030,
-            demand="AB",
         )
 
     # Loading config file and wild cards
@@ -104,8 +103,8 @@ if __name__ == "__main__":
     countries = snakemake.params.countries
 
     investment_year = int(snakemake.wildcards.planning_horizons)
-
     base_year = int(snakemake.params.base_year)
+    demand_sc = snakemake.params.demand_scenario
 
     # PyPSA-Earth upstream:
     # Industry demand is projected from the base year to the planning horizon,

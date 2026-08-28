@@ -44,14 +44,35 @@ jobs:
       run: |
         git merge --no-edit upstream/main
 
-    - name: Add conflict report
-      if: steps.merge.outcome == 'failure'
+    - name: Keep local ignored files after clean merge
+      if: steps.merge.outcome == 'success'
       run: |
-        git status --short > maintenance/upstream-merge-conflicts.txt
-        git merge --abort
+        git checkout origin/main -- README.md .github/workflows/test.yml
+        git add README.md .github/workflows/test.yml
+
+    - name: Auto-resolve ignored conflicts
+      if: steps.merge.outcome == 'failure'
+      id: ignored_conflicts
+      continue-on-error: true
+      run: |
+        git checkout --ours README.md .github/workflows/test.yml || true
+        git add README.md .github/workflows/test.yml || true
+
+        if git diff --name-only --diff-filter=U | grep .; then
+          git status --short > maintenance/upstream-merge-conflicts.txt
+          git merge --abort
+          exit 1
+        fi
+
+        git commit --no-edit
+
+    - name: Add conflict report
+      if: steps.ignored_conflicts.outcome == 'failure'
+      run: |
+        git status --short > maintenance/upstream-merge-conflicts.txt || true
 
     - name: Create sync candidate PR
-      if: steps.merge.outcome == 'success'
+      if: steps.merge.outcome == 'success' || steps.ignored_conflicts.outcome == 'success'
       uses: peter-evans/create-pull-request@v7
       with:
         branch: chore/upstream-sync-candidate
@@ -62,7 +83,7 @@ jobs:
         labels: maintenance, upstream-sync
 
     - name: Create conflict report PR
-      if: steps.merge.outcome == 'failure'
+      if: steps.ignored_conflicts.outcome == 'failure'
       uses: peter-evans/create-pull-request@v7
       with:
         branch: chore/upstream-sync-conflicts
@@ -71,6 +92,10 @@ jobs:
         commit-message: "Report upstream sync conflicts"
         body: |
           Upstream merge failed and requires manual conflict resolution.
+
+          Ignored files are auto-resolved with the local version:
+          - `README.md`
+          - `.github/workflows/test.yml`
 
           See `maintenance/upstream-merge-conflicts.txt`.
 

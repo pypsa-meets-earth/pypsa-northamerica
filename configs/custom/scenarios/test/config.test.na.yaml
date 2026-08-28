@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-countries: ["US"]
+# =================== STUDY SETUP ===================
+countries: ["US"] # ISO codes, continent, or custom region
 
 test_geography:
   enable: true
@@ -12,69 +13,62 @@ run:
   name: "US_small_test"
   sector_name: "US_small_test"
 
-enable:
-  retrieve_databundle: true
-  retrieve_databundle_sector: true
-  retrieve_cost_data: true
-  download_osm_data: true
-  retrieve_cutout: true # must be true for CI tests
-  build_cutout: false
-  custom_busmap: false
-
-retrieve_precomputed:
-  cutouts: false
-  osm_raw: true
-  osm_clean: false
-  osm_network: false
-  shapes: false
-  base_network: false
-  renewable_profiles: false
-
-foresight: myopic
+foresight: myopic # "myopic" or "overnight"
 
 scenario:
-  simpl: ['']
-  ll: ['v1']
+  simpl: [""]
+  ll: ["v1"]
   clusters: [10]
-  opts: [CCL-168H]
-  planning_horizons:
-  - 2030
-  sopts:
-  - "168H"
+  opts: [CCL-168H] # hyphen-joined options: 3h/6h/24h/Nseg temporal | Co2L/Ep/CH4L caps & prices | ATK/ATKc autarky | {carrier}+p/c/m scale | CCL/BAU/SAFE/RES/EQ solve constraints — see doc/user-guide/wildcards.md
+  planning_horizons: [2030] # investment years for myopic; costs year for overnight
+  sopts: ["168H"]
 
-aviation_demand_scenario:
-  country: US
-  scenario: central # low, central or high
 
-saf_mandate:
-  ekerosene_split: false # separate e-kerosene as separate bus
-  non_spatial_ekerosene: true # connects all e-kerosene buses with a single E-kerosene-main bus to model 0 cost of transport and store
-  enable_mandate: false # enable SAF mandate
-  saf_scenario: EU # EU (default), EU+, EU-
+# =================== DATA RETRIEVAL ===================
+enable:
+  # ----------------- Retrieving data -----------------
+  retrieve_databundle: true # recommended for first run
+  use_test_basins_na: true
+  download_osm_data: true # download OpenStreetMap data for the countries specified above
+  retrieve_cost_data: true # false: use existing data/costs.csv
+  retrieve_databundle_sector: true
+  retrieve_cutout: false
+  build_cutout: false
+  # ----------------- Advanced -----------------
+  custom_busmap: false # optional override for cluster_network busmap
 
-# Keep this off until ERCOT demand mapping is verified.
-demand_distribution:
-  enable: true
-  base_demand_year: 2023
-  holes_area_threshold: 100
-  nprocesses: 2
-  plotting: false
-  set_distribution_fees: false
+# Exclude the global HydroBASINS bundle because CI provides the NA test file.
+databundles:
+  bundle_hydrobasins:
+    disable_by_opt:
+      use_test_basins_na: [all]
 
-demand_projection:
-  planning_horizon: 2030 # only needed for power model, sector model takes demand from UN data using planning_horizon
-  scenario: "Medium"
-  data_centers_load: false
+# Retrieve precomputed files and bypass their local construction.
+retrieve_precomputed:
+  cutouts: true
+  osm_raw: true  # true: bypass download_osm_data
+  osm_clean: false  # true: bypass clean_osm_data
+  shapes: false  # true: bypass build_shapes
+  osm_network: false  # true: bypass build_osm_network
+  base_network: false  # true: bypass base_network
+  renewable_profiles: false  # true: bypass build_renewable_profiles
 
-policies:
-  state: ["CES", "RES"] # "CES" to adopt State-wise clean electricity generation constraints from currently stated policies, "RES" to adopt State-wise renewable electricity generation constraints from currently stated policies, both to apply both kinds of constraints
-  country: [] # "CES" to adopt country-wise clean electricity generation constraint (90% clean electricity by 2040), otherwise empty
+custom_databundles:
+  bundle_cutouts_USA:
+    countries: [US]
+    category: cutouts
+    destination: "cutouts"
+    urls:
+      gdrive: https://drive.google.com/file/d/1CUkXPsU024-kLLI3rp7BzFGeHxAxIWRP/view?usp=drive_link
+    output: [cutouts/cutout-2013-era5.nc]
+    disable_by_opt:
+      build_cutout: [all]
 
-custom_industry:
-  enable: false
+# =================== GEOGRAPHY & SHAPES ===================
 
-cluster_options:
-  alternative_clustering: false  # "False" use Voronoi shapes, "True" use GADM shapes (only Voronoi clustering is currently supported)
+# ------------------- Clustering -------------------
+clustering:
+  alternative_clustering: false # false: use Voronoi shapes; true: use GADM shapes (only Voronoi clustering is currently supported)
   simplify_network:
     p_threshold_drop_isolated: 0.0
   aggregation_strategies:
@@ -84,54 +78,123 @@ cluster_options:
       underground: any
       under_construction: any
 
+
+# =================== NETWORK & RESOURCES ===================
+
+# ------------------- Electricity grid -------------------
 electricity:
-  agg_p_nom_limits:
-    file: data/custom/usa/agg_p_nom_minmax.csv
+  # ----------------- Electricity generation -------------------
   extendable_carriers:
     Generator: [solar, onwind, geothermal, nuclear, OCGT, CCGT, biomass]
     Store: [battery, H2]
 
-  custom_powerplants: "replace" #  "false" use only powerplantmatching (ppm) data, "merge" combines ppm and custom powerplants, "replace" use only custom powerplants
-  custom_powerplants_file: data/custom/usa/custom_powerplants_test_US_small.csv
-
   conventional_carriers: [nuclear, oil, OCGT, CCGT, coal, geothermal, biomass]
   renewable_carriers: [solar, onwind, hydro]
 
-  estimate_renewable_capacities:
-    stats: false  # False, = greenfield expansion, 'irena' uses IRENA stats to add expansion limits
+  # ----------------- Existing powerplants -------------------
+  custom_powerplants:
+    filepaths:
+    - data/custom/usa/custom_powerplants_test_US_small.csv
+    method: replace
 
+  estimate_renewable_capacities:
+    stats: false # false: greenfield expansion; "irena": use IRENA statistics to add expansion limits
+
+  # ----------------- Grid topology -------------------
+  voltages: [69., 100., 115., 138., 161., 230., 345., 500., 765.]
+
+  # ----------------- Constraints & reserve -------------------
+  agg_p_nom_limits:
+    file: data/custom/usa/agg_p_nom_minmax.csv
+
+lines:
+  use_country_specific_types: true
+  ac_types:
+    US:
+      69.: "US_69kV"
+      100.: "US_100kV"
+      115.: "US_115kV"
+      138.: "US_138kV"
+      161.: "US_161kV"
+      230.: "US_230kV"
+      345.: "US_345kV"
+      500.: "US_500kV"
+      765.: "US_765kV"
+
+# ------------------- Weather & renewables -------------------
 renewable:
   hydro:
+    hydrobasins_level: 6
+    resource:
+      hydrobasins: data/custom/hydrobasins_na/hybas_na_lev06_v1c.shp
     normalization:
       method: eia
-    hydro_capital_cost: true
+    hydro_capital_cost: false
 
+# ------------------- Costs & emissions -------------------
 costs:
-  year: 2030
-  cost_scenario: "moderate" # only used if `country_specific_data: "US"`; can be "moderate", "advanced" or "conservative"
-  cost_scenario_by_technology_group: # (optional): overwrites for some specific technology groups
+  year: 2030 # cost file selection; reference year for costs is always 2025
+  cost_scenario: "moderate" # used only with country_specific_data: "US"; "moderate", "advanced", or "conservative"
+  cost_scenario_by_technology_group: # optional overrides for specific technology groups
     electricity: "moderate"
     H2_electrolysis: "moderate"
     dac: "moderate"
   VOM:
     oil: 100.0
 
+
+# =================== SECTOR OPTIONS ===================
+
+# ------------------- Hydrogen policy & export -------------------
 policy_config:
   hydrogen:
-    temporal_matching: "no_temporal_matching"
+    temporal_matching: "no_temporal_matching" # "hourly", "monthly", "yearly", or "no_temporal_matching"
     additionality: false
     temporal_matching_carriers: [solar, onwind, ror, hydro, nuclear]
     h2_production_constraint: false
 
+# ------------------- Sector-coupled demand data -------------------
 demand_data:
   base_year: 2021
 
+demand_projection:
+  planning_horizon: 2030
+  scenario: "Medium"
+  data_centers_load: false
+
+demand_distribution:
+  enable: true
+  base_demand_year: 2023
+  holes_area_threshold: 100
+  nprocesses: 2
+  plotting: false
+  set_distribution_fees: false
+
+# ------------------- Custom data -------------------
 custom_data:
   airports: false
 
+# ------------------- Brownfield capacities -------------------
 existing_capacities:
-  threshold_capacity: 5
+  threshold_capacity: 5 # MW; capacities below this threshold are not added in a separate horizon
 
+# ------------------- State and country policies -------------------
+policies:
+  state: ["CES", "RES"] # apply state-level clean-energy and renewable-energy constraints
+  country: [] # apply country-level clean-energy constraints
+
+# ------------------- Shipping & aviation -------------------
+aviation_demand_scenario:
+  country: US
+  scenario: central # low, central, or high
+
+saf_mandate:
+  ekerosene_split: false # model e-kerosene on a separate bus
+  non_spatial_ekerosene: true # connect all e-kerosene buses to a single zero-cost transport and storage bus
+  enable_mandate: false
+  saf_scenario: EU # EU, EU+, or EU-
+
+# ------------------- Enabled sectors & fuel infrastructure -------------------
 sector:
   electricity_distribution_grid: false
   solar_thermal_collector:
@@ -169,21 +232,27 @@ sector:
     AB_2035: 0.0
     AB_2040: 0.0
 
+# ------------------- Custom industry -------------------
+custom_industry:
+  enable: false
+
+
+# =================== SOLVING ===================
 solving:
-  options:
-    load_shedding: false
+  # ------------------- Solver -------------------
   solver:
     name: highs
     options: highs-ci
+
+  # ------------------- Optimization options -------------------
+  options:
+    load_shedding: false
+
+  # ------------------- Solver presets -------------------
   solver_options:
     highs-ci:
-      # refer to https://ergo-code.github.io/HiGHS/dev/options/definitions/
+      # See https://ergo-code.github.io/HiGHS/dev/options/definitions/
       threads: 4
       solver: "simplex"
       parallel: "on"
       random_seed: 123
-
-plotting:
-  tech_colors:
-    PHS: "#036356"
-    wind: "#6895dd"

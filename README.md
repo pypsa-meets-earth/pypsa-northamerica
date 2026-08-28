@@ -28,22 +28,22 @@ Canada and Mexico may be added in future releases.
 
 ## Running the workflow
 
-The custom workflow is activated through:
-
-```yaml
-custom_rules: ["workflow/custom.smk"]
-```
-
 Scenario configuration files are stored in `configs/custom`. The main configuration file is `configs/custom/config.main.yaml`, while scenario-specific files are available in subfolders such as `configs/calibration/` and `configs/scenarios/`.
 
 ### Running US scenarios
 
 All Snakemake commands should be executed from the repository root.
 
-To run the U.S. sector-coupled model for the selected, calibrated base year (2023):
+To run the US power model for the selected, calibrated base year (2023):
 
 ```bash
-snakemake -c 1 solve_sector_networks --configfile configs/custom/calibration/config.base.yaml
+snakemake -c 1 solve_all_networks --configfile configs/custom/calibration/config.base.elec.yaml
+```
+
+To run the US sector-coupled model for the selected, calibrated base year (2023):
+
+```bash
+snakemake -c 1 solve_sector_networks --configfile configs/custom/calibration/config.base.sector.yaml
 ```
 
 To run a future-year Reference scenario, replace `20**` with the target year:
@@ -68,40 +68,52 @@ snakemake -call solve_sector_networks_myopic --configfile configs/custom/scenari
 
 where ** can be replaced with any value from `01` to `10` (scenario descriptions are available in the provided config files).
 
-### Custom workflow rules
+### Custom workflow
 
-| Rule name                        | Description                                                                                                |
-|----------------------------------| ---------------------------------------------------------------------------------------------------------- |
-| `validate_all`                   | Performs country-level validation against EIA and Ember data.                                              |
-| `statewise_validate_all`         | Performs state-level validation against EIA data.                                                          |
-| `get_capacity_factors`           | Estimates renewable capacity factors.                                                                      |
-| `process_airport_data`           | Processes airport passenger and jet-fuel data and generates state-level aviation demand inputs.            |
-| `generate_aviation_scenario`     | Generates aviation demand files for future scenarios.                                                      |
-| `modify_aviation_demand`         | Replaces default aviation demand in `energy_totals` with custom aviation demand.                           |
-| `preprocess_demand_data`         | Preprocesses utility demand data into geospatial format.                                                   |
-| `build_demand_profiles_from_eia` | Builds custom demand profiles from EIA data and bypasses the default demand-profile rule.                  |
-| `set_saf_mandate`                | Adds e-kerosene buses and applies SAF mandate constraints when enabled.                                    |
-| `build_custom_industry_demand`   | Estimates node-level demand for selected industries such as ammonia, ethanol, cement, and steel.           |
-| `add_industry`                   | Adds selected custom industries to the sector-coupled network.                                             |
-| `prepare_growth_rate_scenarios`  | Selects the appropriate growth-rate files for the configured demand-projection scenario.                   |
-| `solve_custom_sector_network`    | Solves the customized sector-coupled model with clean electricity, RES policy, and tax-credit constraints. |
+PyPSA-NorthAmerica follows a lightweight soft-fork architecture. Most customizations are implemented through dedicated rules and scripts in `workflow/custom.smk` and `scripts/custom/`. When only minor changes are required, the corresponding upstream PyPSA-Earth scripts are modified directly instead of being duplicated. Such modifications are explicitly marked with `# PyPSA-NorthAmerica` comments to facilitate maintenance and future synchronization with upstream.
+
+The custom workflow is activated through
+
+```yaml
+custom_rules:
+  - workflow/custom.smk
+```
+
+Only the components requiring North American datasets or modelling assumptions are replaced, while the remainder of the workflow is inherited directly from PyPSA-Earth. This minimizes maintenance effort while allowing upstream improvements to be incorporated with minimal changes.
+
+#### Custom rules
+
+| Rule name | Script | Purpose                                                                                                                              |
+|---|---|--------------------------------------------------------------------------------------------------------------------------------------|
+| `custom_process_cost_data` | `scripts/custom/custom_process_cost_data.py` | Apply technology-group-specific cost scenario overrides during upstream technology cost processing.                                  |
+| `process_airport_data` | `scripts/custom/process_airport_data.py` | Process US airport passenger and jet-fuel data.                                                                                      |
+| `generate_aviation_scenario` | `scripts/custom/generate_aviation_scenarios.py` | Generate future aviation fuel demand scenarios based on ICCT scenarios.                                                              |
+| `modify_aviation_demand` | `scripts/custom/modify_aviation_demand.py` | Replace default aviation demand in `energy_totals`.                                                                                  |
+| `preprocess_demand_data` | `scripts/custom/preprocess_demand_data.py` | Preprocess US utility demand data into geospatial inputs.                                                                            |
+| `build_demand_profiles_from_eia` | `scripts/custom/build_demand_profiles_from_eia.py` | Build electricity demand profiles from EIA balancing authority data and take precedence over the default demand-profile rule.        |
+| `set_saf_mandate` | `scripts/custom/set_saf_mandate.py` | Add e-kerosene buses and SAF mandate constraints when enabled.                                                                       |
+| `build_custom_industry_demand` | `scripts/custom/build_custom_industry_demand.py` | Estimate node-level demand for selected custom industries.                                                                           |
+| `add_custom_industry` | `scripts/custom/add_industry.py` | Add selected custom industries and point-source CO2 capture to the sector-coupled network.                                           |
+| `prepare_growth_rate_scenarios` | `scripts/custom/prepare_growth_rate_scenarios.py` | Select growth-rate files for the configured demand projection scenario.                                                              |
+| `set_distribution_fees` | `scripts/custom/set_distribution_fees.py` | Add US distribution-fees to the sector network.                                                                                      |
+| `solve_custom_sector_network` | `scripts/custom/solve_custom_sector_network.py` | Solve the customized sector-coupled model with clean electricity, RES policy, hydrogen temporal matching and tax-credit constraints. |
 
 ### Custom retrieve rules
 
 PyPSA-Northamerica also includes retrieve rules that allow selected precomputed inputs to be used instead of rebuilding them from scratch.
 
-| Rule name                     | Description                                                               |
-| ----------------------------- | ------------------------------------------------------------------------- |
-| `retrieve_cutouts`            | Retrieves North American cutouts.                                         |
-| `retrieve_osm_raw`            | Retrieves raw OSM data and bypasses `download_osm_data`.                  |
-| `retrieve_osm_clean`          | Retrieves cleaned OSM data and bypasses `clean_osm_data`.                 |
-| `retrieve_shapes`             | Retrieves shape files and bypasses `build_shapes`.                        |
-| `retrieve_osm_network`        | Retrieves the OSM-based network and bypasses `build_osm_network`.         |
-| `retrieve_base_network`       | Retrieves `base.nc` and bypasses `base_network`.                          |
-| `retrieve_renewable_profiles` | Retrieves renewable profiles and bypasses `build_renewable_profiles`.     |
-| `retrieve_custom_powerplants` | Copies `data/custom_powerplants.csv` into the PyPSA-Earth data directory. |
-| `retrieve_ssp2`               | Copies `data/NorthAmerica.csv` into the SSP2 data directory.              |
-| `retrieve_demand_data`        | Retrieves utility demand input data.                                      |
+| Rule name                     | Description                                                             |
+| ----------------------------- |-------------------------------------------------------------------------|
+| `retrieve_cutouts`            | Retrieve North American cutouts.                                        |
+| `retrieve_osm_raw`            | Retrieve raw OSM data and bypasses `download_osm_data`.                 |
+| `retrieve_osm_clean`          | Retrieve cleaned OSM data and bypasses `clean_osm_data`.                |
+| `retrieve_shapes`             | Retrieve shape files and bypasses `build_shapes`.                       |
+| `retrieve_osm_network`        | Retrieve the OSM-based network and bypasses `build_osm_network`.        |
+| `retrieve_base_network`       | Retrieve `base.nc` and bypasses `base_network`.                         |
+| `retrieve_renewable_profiles` | Retrieve renewable profiles and bypasses `build_renewable_profiles`.    |
+| `retrieve_custom_powerplants` | Copy `data/custom_powerplants.csv` into the PyPSA-Earth data directory. |
+| `retrieve_ssp2`               | Copy `data/NorthAmerica.csv` into the SSP2 data directory.              |
+| `retrieve_demand_data`        | Retrieve utility demand input data.                                     |
 
 ### Computational reproducibility
 

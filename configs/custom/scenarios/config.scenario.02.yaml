@@ -17,154 +17,88 @@
 # |                          | State policies for electricity generation | Current policies                      |
 # * Optimal transmission expansion if infeasible
 
-countries: ["US"]
 
-enable:
-  retrieve_databundle: false  #  Recommended 'true', for the first run. Otherwise data might be missing.
-  retrieve_databundle_sector: true
-  retrieve_cost_data: true  # true: retrieves cost data from technology data and saves in resources/costs.csv, false: uses cost data in data/costs.csv
-  download_osm_data: true  # If 'true', OpenStreetMap data will be downloaded for the above given countries
-  custom_busmap: true
+# =================== STUDY SETUP ===================
 
 run:
   name: "US_scenario_02" # use this to keep track of runs with different settings
-  sector_name: "US_scenario_02"
-
-foresight: myopic
+  sector_name: "US_scenario_02" # use this to keep track of sector scenario runs
 
 scenario:
-  simpl: ['']
-  ll: ['v1']
-  clusters: [100]
-  opts: [CCL-3H]
-  planning_horizons:
-  - 2030
-  - 2035
-  - 2040
-  sopts:
-  - "3H"
+  ll: ["v1"]
 
-aviation_demand_scenario:
-  country: US
-  scenario: central # low, central or high
 
-saf_mandate:
-  ekerosene_split: true # separate e-kerosene as separate bus
-  non_spatial_ekerosene: true # connects all e-kerosene buses with a single E-kerosene-main bus to model 0 cost of transport and store
-  enable_mandate: true # enable SAF mandate
-  saf_scenario: EU # EU (default), EU+, EU-
+# =================== NETWORK & RESOURCES ===================
 
+# ------------------- Demand projection -------------------
 demand_projection:
-  planning_horizon: 2030 # only needed for power model, sector model takes demand from UN data using planning_horizon
+  planning_horizon: 2030 # only needed for the power model; the sector model takes demand from UN data using planning_horizon
   scenario: "Medium"
   data_centers_load: true
 
+# ------------------- Electricity policies -------------------
+
+state_policy: "off" # "off" or "on": apply renewable and clean-energy policies at state or country level
+
 policies:
-  state: ["CES", "RES"] # "CES" to adopt State-wise clean electricity generation constraints from currently stated policies, "RES" to adopt State-wise renewable electricity generation constraints from currently stated policies, both to apply both kinds of constraints
-  country: [] # "CES" to adopt country-wise clean electricity generation constraint (90% clean electricity by 2040), otherwise empty
+  state: ["CES", "RES"] # "CES" applies state clean-electricity constraints; "RES" applies state renewable-electricity constraints; use both to apply both kinds
+  country: [] # "CES" applies the country clean-electricity constraint (90% clean electricity by 2040); otherwise leave empty
 
-custom_industry:
-  CCS_retrofit: [ethanol, ammonia, steel, cement]
-
-cluster_options:
-  alternative_clustering: true
-  # Options:
-  # - gadm: administrative regions (default upstream behaviour)
-  # - balancing_areas: EIA balancing authority regions
-  # - eia_market_module: EIA Electricity Market Module (EMM) regions
-  # - needs_grid_regions: aggregated NEEDS transmission planning regions
-  alternative_clustering_shape: needs_grid_regions
-  simplify_network:
-    p_threshold_drop_isolated: 0.0
-
-electricity:
-  agg_p_nom_limits:
-    file: data/custom/usa/agg_p_nom_minmax.csv
-  extendable_carriers:
-    Generator: [solar, onwind, offwind-ac, offwind-dc, csp, geothermal, nuclear, OCGT, CCGT, biomass]
-    Store: [battery, H2]
-
-  custom_powerplants: "replace" #  "false" use only powerplantmatching (ppm) data, "merge" combines ppm and custom powerplants, "replace" use only custom powerplants
-
-  conventional_carriers: [nuclear, oil, OCGT, CCGT, coal, geothermal, biomass]
-  renewable_carriers: [solar, csp, onwind, offwind-ac, offwind-dc, hydro]
-
-  estimate_renewable_capacities:
-    stats: false  # False, = greenfield expansion, 'irena' uses IRENA stats to add expansion limits
-
-renewable:
-  hydro:
-    normalization:
-      method: eia
-    hydro_capital_cost: true
-
+# ------------------- Costs & emissions -------------------
 costs:
-  year: 2030
-  cost_scenario: "moderate" # only used if `country_specific_data: "US"`; can be "moderate", "advanced" or "conservative"
-  cost_scenario_by_technology_group: # (optional): overwrites for some specific technology groups
+  year: 2030 # cost file selection, i.e. costs_2030.csv in this case; reference year for costs is always 2025
+  cost_scenario: "moderate" # only used if `country_specific_data: "US"`; can be "moderate", "advanced", or "conservative"
+  cost_scenario_by_technology_group: # optional overrides for specific technology groups
     electricity: "moderate"
     H2_electrolysis: "moderate"
     dac: "moderate"
-  VOM:
-    oil: 100.0
 
+
+# =================== SECTOR OPTIONS ===================
+
+# ------------------- Hydrogen policy -------------------
 policy_config:
   hydrogen:
-    temporal_matching: "hourly" # either "hourly", "monthly", "yearly", "no_temporal_matching"
-    additionality: true
+    temporal_matching: "no_temporal_matching" # either "hour", "month", "year", or "no_temporal_matching"
+    additionality: true # RE electricity is equal to the amount required for additional hydrogen export compared to the zero-export reference case
     temporal_matching_carriers: [csp, solar, onwind, offwind-ac, offwind-dc, ror, hydro, nuclear]
 
-demand_data:
-  base_year: 2021
-
-custom_data:
-  airports: true
-
-existing_capacities:
-  threshold_capacity: 5 # MW, below this threshold capacities are not added in separate horizon
+# ------------------- Custom industry -------------------
+custom_industry:
+  CCS_retrofit: [ethanol, ammonia, steel, cement] # sectors for which CCS retrofits are enabled
 
 sector:
-  electricity_distribution_grid: true
+  # ------------------- ELECTRICITY DISTRIBUTION GRID -------------------
+  electricity_distribution_grid: true # adds low-voltage buses and shifts AC loads, BEVs, heat pumps, resistive heaters, and micro CHPs to low-voltage buses if technologies are present
+
+  # ------------------- POWERPLANTS OPTIONS -------------------
   conventional_generation: # generator : carrier
     OCGT: gas
     CCGT: gas
     oil: oil
     coal: coal
     biomass: biomass
-  hydrogen:
-    production_technologies: ["Alkaline electrolyzer large", "PEM electrolyzer", "SOEC", "SMR"]
 
-  cc: false # Default CC technologies from PyPSA-Earth (not influencing ethanol, ammonia, cement and still carbon capture retrofits
+  # ------------------- HYDROGEN OPTIONS -------------------
+  hydrogen:
+    production_technologies: ["Alkaline electrolyzer large", "PEM electrolyzer", "SOEC", "SMR"] # list of H2 production technologies that can be added
+
+  # ------------------- CARBON CAPTURE OPTIONS -------------------
+  cc: false # Default CC technologies from PyPSA-Earth (not influencing ethanol, ammonia, cement, and steel carbon-capture retrofits)
   SMR CC: false
 
-  land_transport_fuel_cell_share:
+  # ------------------- LAND TRANSPORT SECTOR -------------------
+  land_transport_fuel_cell_share: # 1 means all FCEVs
     AB_2030: 0.0
     AB_2035: 0.0
     AB_2040: 0.0
-  land_transport_electric_share:
+  land_transport_electric_share: # 1 means all EVs
     AB_2030: 0.117
     AB_2035: 0.201
     AB_2040: 0.277
-  shipping_hydrogen_share:
-    AB_2030: 0.00
-    AB_2035: 0.00
-    AB_2040: 0.00
 
-solving:
-  options:
-    load_shedding: false
-  solver:
-    name: gurobi
-    options: gurobi-default
-  solver_options:
-    gurobi-default:
-      threads: 8
-      method: 2 # barrier
-      crossover: 0
-      BarConvTol: 1.e-4
-      BarHomogeneous: 1
-
-plotting:
-  tech_colors:
-    PHS: #036356
-    wind: #6895dd
+  # ------------------- SHIPPING & AVIATION SECTOR -------------------
+  shipping_hydrogen_share: # 1 means all hydrogen-powered shipping
+    AB_2030: 0.0
+    AB_2035: 0.0
+    AB_2040: 0.0

@@ -1,0 +1,62 @@
+# SPDX-FileCopyrightText: Open Energy Transition gGmbH
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+
+# =================== STUDY SETUP ===================
+countries: ["US"] # ISO codes, continent, or custom region
+
+foresight: overnight # "myopic" or "overnight"
+
+run:
+  name: "US_2023" # optional; stores intermediate files in a subfolder (e.g. "KZ" → resources/KZ/, results/KZ/); empty = no subfolder
+
+scenario:
+  simpl: [""]
+  ll: ["v1"]
+  clusters: [100]
+  opts: [Co2L-3h] # hyphen-joined options: 3h/6h/24h/Nseg temporal | Co2L/Ep/CH4L caps & prices | ATK/ATKc autarky | {carrier}+p/c/m scale | CCL/BAU/SAFE/RES/EQ solve constraints — see doc/user-guide/wildcards.md
+  planning_horizons: # investment years for myopic; costs year for overnight
+  - 2020
+  sopts:
+  - "3h"
+
+
+# =================== NETWORK & RESOURCES ===================
+
+# ------------------- Electricity grid -------------------
+electricity:
+  # ----------------- Electricity generation -------------------
+  extendable_carriers:
+    Generator: [] # Remove 'offwind-ac' and 'offwind-dc' for landlocked countries (e.g. Jordan, Austria, Switzerland)
+    Store: [] # battery, H2
+
+# ------------------- Weather & renewables -------------------
+renewable:
+  hydro:
+    normalization:
+      method: eia
+    hydro_capital_cost: true
+
+# ------------------- Costs & emissions -------------------
+costs:
+  year: 2020 # cost file selection, i.e. costs_2020.csv in this case; reference year for costs is always 2025
+
+  lifetime: # years
+    CCGT: 45
+    OCGT: 45
+
+  efficiency: # per unit
+    coal: 0.3195 # EIA https://www.eia.gov/electricity/annual/html/epa_08_01.html
+    oil: 0.3005 # EIA https://www.eia.gov/electricity/annual/html/epa_08_01.html
+    CCGT: 0.4429 # EIA https://www.eia.gov/electricity/annual/html/epa_08_01.html
+    nuclear: 0.3254 # EIA https://www.eia.gov/electricity/annual/html/epa_08_01.html
+    biomass: 0.3000 # EIA https://www.eia.gov/electricity/annual/html/epa_08_01.html
+
+  VOM: # currency/MWh
+    oil: 100.0
+
+co2:
+  limit: 1.565e+9 # base * 1.1 for calibration purposes
+  base: 1.490e+9 # power sector emissions US 2023 https://www.iea.org/countries/united-states/electricity
+  emission_price: 0. # [currency/tCO2]; active via Ep wildcard

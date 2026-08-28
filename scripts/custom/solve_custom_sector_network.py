@@ -2365,10 +2365,11 @@ if __name__ == "__main__":
 
     Nyears = n.snapshot_weightings.objective.sum() / 8760.0
     costs = load_costs(
-        snakemake.input.costs,
-        snakemake.config["costs"],
-        snakemake.config["electricity"]["max_hours"],
-        Nyears,
+        tech_costs=snakemake.input.costs,
+        config=snakemake.config["costs"],
+        max_hours=snakemake.config["electricity"]["max_hours"],
+        Nyears=Nyears,
+        storage_techs=snakemake.config["storage_techs"],
     )
 
     if snakemake.params.augmented_line_connection.get("add_to_snakefile"):
