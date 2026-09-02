@@ -2430,17 +2430,15 @@ def get_linetype_by_voltage_and_country(
     if "default" not in linetypes:
         raise ValueError("Missing 'default' line type mapping.")
 
-    mapping_name = country if use_country_specific_types else "default"
-
-    if mapping_name not in linetypes:
-        raise ValueError(f"Missing line type mapping for country '{mapping_name}'.")
+    mapping_name = (
+        country if use_country_specific_types and (country in linetypes) else "default"
+    )
 
     mapping = linetypes[mapping_name]
 
     if not mapping:
         raise ValueError(
-            f"No line type mapping found for voltage {v_nom} kV "
-            f"in mapping '{mapping_name}'."
+            f"Empty line type mapping found for line mapping '{mapping_name}'."
         )
 
     voltage = min(

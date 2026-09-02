@@ -108,17 +108,18 @@ electricity:
     file: data/custom/usa/agg_p_nom_minmax.csv
 
 lines:
-  custom_line_types: data/custom/usa/transmission_network/line_types.csv
+  use_country_specific_types: true
   ac_types:
-    69.: US_69kV
-    100.: US_100kV
-    115.: US_115kV
-    138.: US_138kV
-    161.: US_161kV
-    230.: US_230kV
-    345.: US_345kV
-    500.: US_500kV
-    765.: US_765kV
+    US:
+      69.: "US_69kV"
+      100.: "US_100kV"
+      115.: "US_115kV"
+      138.: "US_138kV"
+      161.: "US_161kV"
+      230.: "US_230kV"
+      345.: "US_345kV"
+      500.: "US_500kV"
+      765.: "US_765kV"
 
 # ------------------- Weather & renewables -------------------
 renewable:

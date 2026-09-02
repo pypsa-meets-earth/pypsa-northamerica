@@ -102,9 +102,7 @@ jobs:
           resources/US_small_test
           networks/US_small_test
           cutouts/cutout-2013-era5.nc
-        key: pypsa-na-test-data-${{ runner.os }}-${{ hashFiles('configs/**/*.yaml', 'config*.yaml') }}
-        restore-keys: |
-          pypsa-na-test-data-${{ runner.os }}-
+        key: pypsa-na-test-data-v2-${{ runner.os }}-${{ hashFiles('Snakefile', 'workflow/**/*.smk', 'scripts/**/*.py', 'data/custom_line_types.csv', 'data/custom/**/*', 'configs/**/*.yaml', 'config*.yaml', 'envs/*.yaml') }}
 
     - name: Prepare HydroBASINS test data
       shell: bash
