@@ -1119,12 +1119,15 @@ def attach_existing_batteries(
     n: pypsa.Network,
     costs: pd.DataFrame,
     ppl: pd.DataFrame,
-    extendable_carriers: dict,
     battery_techs: dict,
     max_hours: float,
 ) -> None:
     """
     Add existing battery storage units from powerplants.csv to the network.
+
+    Currently existing batteries are attached as ``StorageUnit`` components on
+    the parent AC bus (see issue #1983 and PR #1990). Revert to a Store+Link
+    representation once clustering supports stores and links.
 
     Parameters
     ----------
@@ -1134,8 +1137,6 @@ def attach_existing_batteries(
         DataFrame containing technology costs.
     ppl : pd.DataFrame
         Power plant DataFrame.
-    extendable_carriers : dict
-        Dictionary of extendable carriers for different component types.
     battery_techs: dict
         A dictionary mapping of battery and its technology parameters.
     max_hours: float
@@ -1156,18 +1157,30 @@ def attach_existing_batteries(
     # Aggregate batteries by (bus, carrier, grouping_year)
     batteries_grouped = aggregate_ppl_by_bus_carrier_year(batteries)
 
-    # In the future when different storage technologies exist, use this framework.
-    lookup_store = battery_techs["store"]
-    if "bicharger" in battery_techs:
-        lookup_charge = lookup_discharge = battery_techs["bicharger"]
-    else:
-        lookup_charge = battery_techs["charger"]
-        lookup_discharge = battery_techs["discharger"]
+    lookup_inverter = battery_techs["bicharger"]
+    inverter_efficiency = costs.at[lookup_inverter, "efficiency"] ** 0.5
 
-    discharge_capital_cost = (
-        0.0
-        if "bicharger" in battery_techs
-        else costs.at[lookup_discharge, "capital_cost"]
+    # TODO: make existing-battery representation selectable (StorageUnit
+    # or Store+Link). Currently StorageUnit only, because Store+Link extra buses
+    # are treated as isolated AC islands during clustering. See issue #1983.
+
+    n.madd(
+        "StorageUnit",
+        batteries_grouped.index,
+        bus=batteries_grouped["bus"],
+        carrier=batteries_grouped["carrier"],
+        p_nom=batteries_grouped["p_nom"],
+        p_nom_extendable=False,
+        p_nom_min=batteries_grouped["p_nom"],
+        p_nom_max=batteries_grouped["p_nom"],
+        capital_cost=costs.at["battery", "capital_cost"],
+        max_hours=max_hours,
+        efficiency_store=inverter_efficiency,
+        efficiency_dispatch=inverter_efficiency,
+        cyclic_state_of_charge=True,
+        marginal_cost=costs.at["battery", "marginal_cost"],
+        build_year=batteries_grouped["build_year"],
+        lifetime=batteries_grouped["lifetime"],
     )
 
     if "battery" in extendable_carriers["Store"]:
@@ -1255,8 +1268,10 @@ def attach_existing_batteries(
         )
 
     logger.info(
-        f"Added {len(batteries_grouped)} existing batteries defined as {battery_def} with total capacity "
-        f"{batteries_grouped.p_nom.sum()/1e3:.2f} GW (max_hours={max_hours})."
+        "Added {} existing batteries defined as StorageUnit with total capacity "
+        "{:.2f} GW (max_hours={}).".format(
+            len(batteries_grouped), batteries_grouped.p_nom.sum() / 1e3, max_hours
+        )
     )
 
 
@@ -1365,7 +1380,6 @@ if __name__ == "__main__":
         n,
         costs,
         ppl,
-        extendable_carriers,
         snakemake.params.battery_techs,
         snakemake.params.electricity["max_hours"]["battery"],
     )
