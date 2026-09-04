@@ -95,7 +95,7 @@ jobs:
       run: conda list
 
     - name: Cache test data
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: |
           data/custom
