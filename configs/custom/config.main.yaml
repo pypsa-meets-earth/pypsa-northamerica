@@ -133,7 +133,7 @@ custom_databundles:
 
 # ------------------- Clustering -------------------
 clustering:
-  alternative_clustering: false # false: use Voronoi shapes; true: use GADM shapes
+  alternative_clustering: true # false: use Voronoi shapes; true: use GADM shapes
   simplify_network:
     p_threshold_drop_isolated: 0.0
   aggregation_strategies:

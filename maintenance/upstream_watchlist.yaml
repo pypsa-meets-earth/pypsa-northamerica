@@ -10,6 +10,22 @@ watch:
   - Snakefile
 
   rules:
+    build_bus_regions_custom:
+      parent_rule: build_bus_regions
+      parent_script: scripts/build_bus_regions.py
+      custom_script: scripts/custom/build_us_bus_regions.py
+      review:
+      - workflow/custom.smk
+      - scripts/custom/build_us_bus_regions.py
+
+    cluster_network_custom:
+      parent_rule: cluster_network
+      parent_script: scripts/cluster_network.py
+      custom_script: scripts/custom/cluster_us_network.py
+      review:
+      - workflow/custom.smk
+      - scripts/custom/cluster_us_network.py
+
     build_demand_profiles_custom:
       parent_rule: build_demand_profiles
       parent_script: scripts/build_demand_profiles.py

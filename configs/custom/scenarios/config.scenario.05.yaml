@@ -49,7 +49,6 @@ line_expansion_limits: # from DOE NTL Study
   2035: v1.153
   2040: v1.227
 
-# ------------------- Costs & emissions -------------------
 costs:
   year: 2030 # cost file selection, i.e. costs_2030.csv in this case; reference year for costs is always 2025
   cost_scenario: "moderate" # only used if `country_specific_data: "US"`; can be "moderate", "advanced", or "conservative"

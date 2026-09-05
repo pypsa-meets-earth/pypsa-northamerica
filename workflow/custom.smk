@@ -268,6 +268,34 @@ if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
 
 if config["countries"] == ["US"]:
 
+    rule build_bus_regions_custom:
+        params:
+            alternative_clustering=config["cluster_options"]["alternative_clustering"],
+            cluster_options=config["cluster_options"],
+            crs=config["crs"],
+            countries=config["countries"],
+        input:
+            country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
+            offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
+            base_network="networks/" + RDIR + "base.nc",
+            gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
+        output:
+            regions_onshore="resources/" + RDIR + "bus_regions/regions_onshore.geojson",
+            regions_offshore="resources/"
+            + RDIR
+            + "bus_regions/regions_offshore.geojson",
+        log:
+            "logs/" + RDIR + "build_bus_regions.log",
+        benchmark:
+            "benchmarks/" + RDIR + "build_bus_regions"
+        threads: 1
+        resources:
+            mem_mb=1000,
+        script:
+            "../scripts/custom/build_us_bus_regions.py"
+
+    ruleorder: build_bus_regions_custom > build_bus_regions
+
     use rule build_powerplants from pypsa_earth as build_powerplants_custom with:
         input:
             base_network="networks/" + RDIR + "base.nc",
@@ -281,6 +309,65 @@ if config["countries"] == ["US"]:
             gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
 
     ruleorder: build_powerplants_custom > build_powerplants
+
+    rule cluster_network_custom:
+        params:
+            aggregation_strategies=config["cluster_options"]["aggregation_strategies"],
+            build_shape_options=config["build_shape_options"],
+            electricity=config["electricity"],
+            length_factor=config["lines"]["length_factor"],
+            renewable=config["renewable"],
+            crs=config["crs"],
+            countries=config["countries"],
+            cluster_options=config["cluster_options"],
+            focus_weights=config.get("focus_weights", None),
+            custom_busmap=config["enable"].get("custom_busmap", False),
+        input:
+            network="networks/" + RDIR + "elec_s{simpl}.nc",
+            country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
+            regions_onshore="resources/"
+            + RDIR
+            + "bus_regions/regions_onshore_elec_s{simpl}.geojson",
+            regions_offshore="resources/"
+            + RDIR
+            + "bus_regions/regions_offshore_elec_s{simpl}.geojson",
+            gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
+            custom_busmap=(
+                "data/custom_busmap_elec_s{simpl}_{clusters}.csv"
+                if config["enable"].get("custom_busmap", False)
+                else []
+            ),
+            tech_costs="resources/" + RDIR + f"costs_{config['costs']['year']}_elec.csv",
+        output:
+            network=branch(
+                config["augmented_line_connection"].get("add_to_snakefile", False)
+                == True,
+                "networks/" + RDIR + "elec_s{simpl}_{clusters}_pre_augmentation.nc",
+                "networks/" + RDIR + "elec_s{simpl}_{clusters}.nc",
+            ),
+            regions_onshore="resources/"
+            + RDIR
+            + "bus_regions/regions_onshore_elec_s{simpl}_{clusters}.geojson",
+            regions_offshore="resources/"
+            + RDIR
+            + "bus_regions/regions_offshore_elec_s{simpl}_{clusters}.geojson",
+            busmap="resources/"
+            + RDIR
+            + "bus_regions/busmap_elec_s{simpl}_{clusters}.csv",
+            linemap="resources/"
+            + RDIR
+            + "bus_regions/linemap_elec_s{simpl}_{clusters}.csv",
+        log:
+            "logs/" + RDIR + "cluster_network/elec_s{simpl}_{clusters}.log",
+        benchmark:
+            "benchmarks/" + RDIR + "cluster_network/elec_s{simpl}_{clusters}"
+        threads: 1
+        resources:
+            mem_mb=3000,
+        script:
+            "../scripts/custom/cluster_us_network.py"
+
+    ruleorder: cluster_network_custom > cluster_network
 
 
 if config["countries"] == ["US"]:

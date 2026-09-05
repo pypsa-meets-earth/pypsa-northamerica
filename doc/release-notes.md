@@ -6,6 +6,12 @@ SPDX-License-Identifier: CC-BY-4.0
 
 Release Notes
 
+# PyPSA-NorthAmerica
+
+This part of documentation is specific to PyPSA-NorthAmerica and collects descriptive release notes relative to the North-American workflow
+
+* Added support for alternative US clustering regions [PR #28](https://github.com/pypsa-meets-earth/pypsa-northamerica/pull/28)
+
 # Upcoming release
 
 This part of documentation collects descriptive release notes to capture the main improvements introduced by developing the model before the next release.
