@@ -58,9 +58,12 @@ costs:
     oil: 100.0
 
 co2:
-  limit: 4.633e+9 # base * 1.1 for calibration purposes
-  base: 4.413e+9 # power sector emissions US 2023 https://www.iea.org/countries/united-states/emissions
+  limit: 4.634e+9 # base * 1.05 for calibration purposes
+  base: 4.413e+9 # base: 4.413e+9 # US 2023 CO2 emissions, https://www.iea.org/countries/united-states/emissions
   emission_price: 0. # [currency/tCO2]; active via Ep wildcard
+  sector_policy:
+    # US sector limits based on IEA sectoral emissions with a 5% calibration margin.
+    policy_file: "configs/policy/co2_sector_limits_us.csv"
 
 
 # =================== SECTOR OPTIONS ===================
