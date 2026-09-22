@@ -492,7 +492,6 @@ databundles:
     disable_by_opt:
       build_cutout: [all]
 
-
   # data bundle containing the protected data for the whole world
   bundle_landcover_earth:
     countries: [Earth]

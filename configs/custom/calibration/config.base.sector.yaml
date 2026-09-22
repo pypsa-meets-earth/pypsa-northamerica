@@ -98,10 +98,10 @@ sector:
 
   # ------------------- LAND TRANSPORT SECTOR -------------------
   land_transport_fuel_cell_share: # 1 means all FCEVs
-    AB_2023: 0
+    AB_2020: 0
   land_transport_electric_share: # 1 means all EVs
-    AB_2023: 0.006
+    AB_2020: 0.006
 
   # ------------------- SHIPPING & AVIATION SECTOR -------------------
   shipping_hydrogen_share: # 1 means all hydrogen-powered shipping
-    AB_2023: 0
+    AB_2020: 0

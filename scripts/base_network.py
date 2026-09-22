@@ -872,7 +872,7 @@ def base_network(
         converters, country assignments, and underwater fractions.
     """
     buses = _load_buses_from_osm(inputs.osm_buses)
-    lines = _load_lines_from_osm(inputs.osm_lines).reset_index(drop=True)
+    lines = _load_lines_from_osm(inputs.osm_lines)
     transformers = _load_transformers_from_osm(inputs.osm_transformers, buses)
     converters = _load_converters_from_osm(inputs.osm_converters, buses)
 
@@ -884,14 +884,6 @@ def base_network(
     ac_types = lines_config["ac_types"]
     dc_types = lines_config["dc_types"]
 
-    use_country_specific_ac_types = use_country_specific_types and all(
-        country in ac_types for country in countries_config
-    )
-
-    use_country_specific_dc_types = use_country_specific_types and all(
-        country in dc_types for country in countries_config
-    )
-
     lines_ac = lines[~lines.dc].copy()
     lines_dc = lines[lines.dc].copy()
 
@@ -900,7 +892,7 @@ def base_network(
         buses,
         lines_ac,
         ac_types,
-        use_country_specific_ac_types,
+        use_country_specific_types,
     )
 
     lines_dc = _set_electrical_parameters_dc_lines(
@@ -908,7 +900,7 @@ def base_network(
         buses,
         lines_dc,
         dc_types,
-        use_country_specific_dc_types,
+        use_country_specific_types,
     )
 
     transformers = _set_electrical_parameters_transformers(

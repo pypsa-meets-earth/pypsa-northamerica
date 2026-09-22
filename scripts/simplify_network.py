@@ -178,10 +178,10 @@ def simplify_network_to_base_voltage(
     )
     line_bus1_base_voltages = n.lines["bus1"].map(bus_base_voltages)
 
-    ac_lines = n.lines["carrier"] == "AC"
-    dc_lines = n.lines["carrier"] == "DC"
+    ac_line_mask = n.lines["carrier"] == "AC"
+    dc_line_mask = n.lines["carrier"] == "DC"
 
-    mismatched_ac_lines = ac_lines & (line_base_voltages != line_bus1_base_voltages)
+    mismatched_ac_lines = ac_line_mask & (line_base_voltages != line_bus1_base_voltages)
 
     if mismatched_ac_lines.any():
         mismatched_lines = n.lines.loc[
@@ -200,7 +200,7 @@ def simplify_network_to_base_voltage(
             f"{mismatched_lines.to_string()}"
         )
 
-    n.lines.loc[ac_lines, "type"] = pd.Series(
+    n.lines.loc[ac_line_mask, "type"] = pd.Series(
         [
             get_linetype_by_voltage_and_country(
                 voltage,
@@ -209,14 +209,14 @@ def simplify_network_to_base_voltage(
                 use_country_specific_ac_types,
             )
             for voltage, country in zip(
-                line_base_voltages.loc[ac_lines],
-                line_countries.loc[ac_lines],
+                line_base_voltages.loc[ac_line_mask],
+                line_countries.loc[ac_line_mask],
             )
         ],
-        index=n.lines.index[ac_lines],
+        index=n.lines.index[ac_line_mask],
     )
 
-    n.lines.loc[dc_lines, "type"] = pd.Series(
+    n.lines.loc[dc_line_mask, "type"] = pd.Series(
         [
             get_linetype_by_voltage_and_country(
                 voltage,
@@ -225,11 +225,11 @@ def simplify_network_to_base_voltage(
                 use_country_specific_dc_types,
             )
             for voltage, country in zip(
-                line_base_voltages.loc[dc_lines],
-                line_countries.loc[dc_lines],
+                line_base_voltages.loc[dc_line_mask],
+                line_countries.loc[dc_line_mask],
             )
         ],
-        index=n.lines.index[dc_lines],
+        index=n.lines.index[dc_line_mask],
     )
 
     n.lines["v_nom"] = line_base_voltages
@@ -239,7 +239,7 @@ def simplify_network_to_base_voltage(
     n.lines["num_parallel"] = n.lines.eval("s_nom / (sqrt(3) * v_nom * i_nom)")
 
     # Recalculate nominal capacity for DC lines.
-    n.lines.loc[dc_lines, "num_parallel"] = n.lines.loc[dc_lines].eval(
+    n.lines.loc[dc_line_mask, "num_parallel"] = n.lines.loc[dc_line_mask].eval(
         "s_nom / (v_nom * i_nom)"
     )
 
