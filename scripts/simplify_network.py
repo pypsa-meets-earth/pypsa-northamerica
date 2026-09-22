@@ -138,8 +138,8 @@ def simplify_network_to_base_voltage(
         AC line-type mappings by country and nominal voltage.
     dc_types : dict
         DC line-type mappings by country and nominal voltage.
-    base_voltage : dict
-        Default base voltage and optional country-specific overrides.
+    base_voltage : float or dict
+        Common base voltage or mapping with country-specific overrides.
     use_country_specific_ac_types : bool
         Whether to use country-specific AC mappings.
     use_country_specific_dc_types : bool
@@ -150,11 +150,14 @@ def simplify_network_to_base_voltage(
     tuple
         Simplified network and transformer bus mapping.
     """
-    if not isinstance(base_voltage, dict) or "default" not in base_voltage:
-        raise ValueError(
-            "'electricity.base_voltage' must contain a 'default' value "
-            "and may contain country-specific overrides."
-        )
+    if isinstance(base_voltage, dict):
+        if "default" not in base_voltage:
+            raise ValueError(
+                "'electricity.base_voltage' must contain a 'default' value "
+                "when country-specific overrides are configured."
+            )
+    else:
+        base_voltage = {"default": base_voltage}
 
     default_base_voltage = base_voltage["default"]
 
