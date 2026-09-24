@@ -1599,6 +1599,56 @@ def _assign_sector_link_countries(n):
         n.links.loc[link, "country"] = countries.pop()
 
 
+def _assign_sector_load_countries(n):
+    """Assign country metadata to sector-tagged Loads."""
+    sector = (
+        n.loads.get(
+            "sector",
+            pd.Series("", index=n.loads.index, dtype=object),
+        )
+        .fillna("")
+        .astype(str)
+        .str.strip()
+    )
+
+    if "country" not in n.loads.columns:
+        n.loads["country"] = ""
+
+    for load in n.loads.index[sector.ne("")]:
+        country = n.loads.at[load, "country"]
+        country = "" if pd.isna(country) else str(country).strip()
+
+        # Preserve explicitly assigned countries, e.g. aggregated CO2 emission loads.
+        if country:
+            continue
+
+        bus = n.loads.at[load, "bus"]
+
+        if pd.isna(bus) or bus == "" or bus not in n.buses.index:
+            raise ValueError(
+                f"Could not determine country for sector Load '{load}' "
+                f"from bus '{bus}'."
+            )
+
+        country = n.buses.at[bus, "country"]
+        country = "" if pd.isna(country) else str(country).strip()
+
+        if not country:
+            location = n.buses.at[bus, "location"]
+
+            if not pd.isna(location) and location in n.buses.index:
+                country = n.buses.at[location, "country"]
+                country = "" if pd.isna(country) else str(country).strip()
+
+        if not country:
+            raise ValueError(
+                f"Could not determine country for sector Load '{load}' "
+                f"from bus '{bus}'."
+            )
+
+        n.loads.loc[load, "country"] = country
+
+
 def add_aviation(
     n: pypsa.Network, costs: pd.DataFrame, energy_totals: pd.DataFrame, airports_fn: str
 ) -> None:
@@ -4273,6 +4323,7 @@ if __name__ == "__main__":
     sanitize_carriers(n, snakemake.config)
     sanitize_locations(n)
     _assign_sector_link_countries(n)
+    _assign_sector_load_countries(n)
 
     n.export_to_netcdf(snakemake.output[0])
 
