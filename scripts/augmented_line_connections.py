@@ -32,9 +32,9 @@ Outputs
 Description
 -----------
 
-New HVAC connections use country-specific line-type mappings only when enabled
-and when mappings are available for every configured country. Otherwise,
-the complete default mapping is used. Availability is evaluated separately
+New transmission connections use country-specific line-type mappings when
+enabled and when a mapping is available for the corresponding country.
+Otherwise, the default mapping is used. Availability is evaluated separately
 for AC and DC mappings.
 """
 
@@ -146,9 +146,8 @@ if __name__ == "__main__":
         pd.concat([min_sample, max_sample, random_sample]).drop_duplicates().dropna()
     )
 
-    #  add new lines to the network
+    # Add new lines to the network
     lines_config = snakemake.params.lines
-    countries = snakemake.config["countries"]
 
     ac_linetypes = lines_config["ac_types"]
     dc_linetypes = lines_config["dc_types"]

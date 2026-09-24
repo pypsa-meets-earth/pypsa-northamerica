@@ -242,7 +242,10 @@ electricity:
       PV: [solar]
 
   # ----------------- Grid topology -------------------
-  base_voltage: 380.
+  base_voltage:
+    default: 380.
+    AU: 330.
+    US: 345.
   voltages: [132., 220., 300., 380., 500., 750.]
   hvdc_as_lines: false # false: HVDC as Link; true: HVDC as Line
 
