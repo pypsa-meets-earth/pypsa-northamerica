@@ -80,6 +80,30 @@ SPDX-FileCopyrightText = "The PyPSA-Earth and PyPSA-Eur Authors"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
 
 [[annotations]]
+path = "configs/policy/co2_sector_limits.csv"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "The PyPSA-Earth and PyPSA-Eur Authors"
+SPDX-License-Identifier = "CC-BY-4.0"
+
+[[annotations]]
+path = "results/postnetworks/analysis.ipynb"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "The PyPSA-Earth and PyPSA-Eur Authors"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+[[annotations]]
+path = "configs/policy/co2_sector_limits.template.csv"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "The PyPSA-Earth and PyPSA-Eur Authors"
+SPDX-License-Identifier = "CC-BY-4.0"
+
+[[annotations]]
+path = "configs/policy/co2_sector_limits_us.csv"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "The PyPSA-Earth and PyPSA-Eur Authors"
+SPDX-License-Identifier = "CC-BY-4.0"
+
+[[annotations]]
 path = "doc/utilities/img/pypsa_earth_cli_menu.png"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "The PyPSA-Earth and PyPSA-Eur Authors"

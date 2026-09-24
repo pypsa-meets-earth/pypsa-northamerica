@@ -542,6 +542,7 @@ if config["foresight"] == "overnight":
             + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}.nc",
             costs="resources/" + RDIR + "costs_{planning_horizons}_sec.csv",
             configs=PYPSA_EARTH_DIR + SDIR + "configs/config.yaml",  # included to trigger copy_config rule
+            sector_policy=sector_policy_file,
             overrides=CUSTOM_USA_DATA_DIR + "override_component_attrs",
             agg_p_nom_minmax=config["electricity"]["agg_p_nom_limits"]["file"],  # ensure the CSV with capacity constraints is copied into the shadow directory (needed on Windows, since shadowed scripts can’t access files outside `input`)
 
@@ -556,6 +557,7 @@ if config["foresight"] == "myopic":
             + "prenetworks-brownfield/elec_s{simpl}_{clusters}_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}.nc",
             costs="resources/" + RDIR + "costs_{planning_horizons}_sec.csv",
             configs=PYPSA_EARTH_DIR + SDIR + "configs/config.yaml",  # included to trigger copy_config rule
+            sector_policy=sector_policy_file,
             overrides=CUSTOM_USA_DATA_DIR + "override_component_attrs",
             agg_p_nom_minmax=config["electricity"]["agg_p_nom_limits"]["file"],  # ensure the CSV with capacity constraints is copied into the shadow directory (needed on Windows, since shadowed scripts can’t access files outside `input`)
 
@@ -596,6 +598,7 @@ if config["foresight"] == "myopic":
             + RDIR
             + "costs_{planning_horizons}.csv",
             configs=PYPSA_EARTH_DIR + SDIR + "configs/config.yaml",  # included to trigger copy_config rule
+            sector_policy=sector_policy_file,
             agg_p_nom_minmax=config["electricity"]["agg_p_nom_limits"]["file"],
         output:
             network=PYPSA_EARTH_DIR
@@ -693,6 +696,7 @@ if config["foresight"] == "overnight" and config["state_policy"] != "off":
             + RDIR
             + "costs_{planning_horizons}.csv",
             configs=PYPSA_EARTH_DIR + SDIR + "configs/config.yaml",  # included to trigger copy_config rule
+            sector_policy=sector_policy_file,
         output:
             PYPSA_EARTH_DIR
             + RESDIR

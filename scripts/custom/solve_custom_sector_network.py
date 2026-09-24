@@ -111,6 +111,7 @@ from process_cost_data import load_costs
 from pypsa.descriptors import get_switchable_as_dense as get_as_dense
 from pypsa.optimization.abstract import optimize_transmission_expansion_iteratively
 from pypsa.optimization.optimize import optimize
+from solve_network import add_co2_sector_limits
 
 logger = create_logger(__name__)
 pypsa.pf.logger.setLevel(logging.WARNING)
@@ -2265,6 +2266,19 @@ def extra_functionality(n, snapshots):
     if snakemake.config["sector"]["hydrogen"]["set_color_shares"]:
         logger.info("setting H2 color mix")
         set_h2_colors(n)
+
+    co2_limit_active = any(option.startswith("Co2L") for option in opts)
+    sector_policy = config.get("co2", {}).get("sector_policy") or {}
+    policy_file = sector_policy.get("policy_file")
+
+    if co2_limit_active and policy_file:
+        logger.info("setting country and sector specific CO2 limits")
+        add_co2_sector_limits(
+            n,
+            policy_file,
+            snapshots,
+            snakemake.wildcards["planning_horizons"],
+        )
 
     add_co2_sequestration_limit(n, snapshots)
 
