@@ -80,7 +80,6 @@ according to the following rules:
 import datetime as dt
 import os
 import re
-import time
 from zipfile import ZipFile
 
 import geopandas as gpd
@@ -94,7 +93,6 @@ from _helpers import (
     create_logger,
     progress_retrieve,
 )
-from requests.exceptions import ChunkedEncodingError, ConnectionError, ReadTimeout
 from snakemake.script import Snakemake
 from tqdm import tqdm
 
@@ -137,13 +135,25 @@ def download_and_unzip_zenodo(
     rootpath: str,
     hot_run: bool = True,
     disable_progress: bool = False,
-    max_retries: int = 3,
 ) -> bool:
     """
     Download and unzip a resource from Zenodo.
 
-    The download is retried on transient connection errors, which are common
-    in CI when large files are downloaded from Zenodo.
+    Parameters
+    ----------
+    config : dict
+        Configuration data for the category to download.
+    rootpath : str
+        Absolute path of the repository.
+    hot_run : bool
+        Whether the resource should actually be downloaded.
+    disable_progress : bool
+        Whether the download progress bar is disabled.
+
+    Returns
+    -------
+    bool
+        True when download is successful, False otherwise.
     """
     resource = config["category"]
     safe_resource = re.sub(r"[^A-Za-z0-9_.-]+", "_", resource)
@@ -151,57 +161,29 @@ def download_and_unzip_zenodo(
     destination = os.path.join(BASE_DIR, config["destination"])
     url = config["urls"]["zenodo"]
 
-    if not hot_run:
-        return True
-
-    for attempt in range(1, max_retries + 1):
+    if hot_run:
         try:
             if os.path.exists(file_path):
                 os.remove(file_path)
 
-            logger.info(
-                "Downloading resource '%s' from cloud '%s' " "(attempt %s/%s)",
-                resource,
+            logger.info(f"Downloading resource '{resource}' from cloud '{url}'")
+            progress_retrieve(
                 url,
-                attempt,
-                max_retries,
+                file_path,
+                disable_progress=disable_progress,
             )
 
-            progress_retrieve(url, file_path, disable_progress=disable_progress)
-
-            logger.info("Extracting resource '%s'", resource)
+            logger.info("Extracting resources")
             with ZipFile(file_path, "r") as zip_obj:
                 zip_obj.extractall(path=destination)
 
             os.remove(file_path)
-            logger.info("Downloaded resource '%s' from cloud '%s'.", resource, url)
+            logger.info(f"Downloaded resource '{resource}' from cloud '{url}'.")
             return True
 
-        except (ChunkedEncodingError, ConnectionError, ReadTimeout) as exc:
-            logger.warning(
-                "Transient download failure for resource '%s' from cloud '%s' "
-                "on attempt %s/%s: %s",
-                resource,
-                url,
-                attempt,
-                max_retries,
-                exc,
-            )
-
-            if os.path.exists(file_path):
-                os.remove(file_path)
-
-            if attempt < max_retries:
-                time.sleep(10 * attempt)
-                continue
-
-            return False
-
         except Exception as exc:
-            logger.exception(
-                "Failed to download resource '%s' from cloud '%s'.",
-                resource,
-                url,
+            logger.warning(
+                f"Failed download resource '{resource}' from cloud '{url}': {exc}"
             )
 
             if os.path.exists(file_path):
@@ -209,7 +191,7 @@ def download_and_unzip_zenodo(
 
             return False
 
-    return False
+    return True
 
 
 def download_and_unzip_gdrive(
@@ -1035,6 +1017,7 @@ def retrieve_databundle(
 
     # initialize downloaded and missing bundles
     downloaded_bundles = []
+    max_attempts = 3
 
     # download the selected bundles
     for b_name in bundles_to_download:
@@ -1048,12 +1031,33 @@ def retrieve_databundle(
 
             try:
                 download_and_unzip = globals()[f"download_and_unzip_{host}"]
-                if download_and_unzip(
-                    config_bundles[b_name], rootpath, disable_progress=disable_progress
-                ):
-                    downloaded_bundle = True
-            except Exception:
-                logger.warning(f"Error in downloading bundle {b_name} - host {host}")
+            except KeyError:
+                logger.warning(f"No download function available for host {host}")
+                continue
+
+            for attempt in range(1, max_attempts + 1):
+                try:
+                    downloaded_bundle = download_and_unzip(
+                        config_bundles[b_name],
+                        rootpath,
+                        disable_progress=disable_progress,
+                    )
+                except Exception as exc:
+                    logger.warning(
+                        f"Error in downloading bundle {b_name} - host {host} "
+                        f"(attempt {attempt}/{max_attempts}): {exc}"
+                    )
+                    downloaded_bundle = False
+
+                if downloaded_bundle:
+                    break
+
+                if attempt < max_attempts:
+                    logger.info(
+                        f"Retrying bundle {b_name} - host {host} "
+                        f"(attempt {attempt + 1}/{max_attempts})"
+                    )
+                    time.sleep(10 * attempt)
 
             if downloaded_bundle:
                 downloaded_bundles.append(b_name)

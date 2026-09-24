@@ -10,14 +10,11 @@ Created on Thu Jul 14 19:01:13 2022.
 
 
 import logging
-import os
-import re
 from pathlib import Path
 
 import country_converter as coco
 import pandas as pd
 from _helpers import aggregate_fuels, get_conv_factors, read_csv_nafix
-from prepare_sector_network import get
 
 # def calc_industry_base(df):
 
@@ -104,15 +101,7 @@ if __name__ == "__main__":
 
     investment_year = int(snakemake.wildcards.planning_horizons)
     base_year = int(snakemake.params.base_year)
-    demand_sc = snakemake.params.demand_scenario
 
-    # PyPSA-Earth upstream:
-    # Industry demand is projected from the base year to the planning horizon,
-    # assuming that the planning horizon corresponds to the reference year of
-    # the industrial dataset.
-    # no_years = investment_year - base_year
-
-    # PyPSA-NorthAmerica:
     # North American workflows may use a planning year as scenario label while
     # relying on newer industrial reference data.
     industry_reference_year = snakemake.config.get("custom_industry", {}).get(
