@@ -10,6 +10,7 @@ import re
 import sys
 import warnings
 from pathlib import Path
+from types import SimpleNamespace
 from zipfile import ZipFile
 
 import geopandas as gpd
@@ -18,8 +19,6 @@ import pandas as pd
 import pypsa
 import snakemake as sm
 import yaml
-from pypsa.components import component_attrs, components
-from pypsa.descriptors import Dict
 from snakemake.script import Snakemake
 
 warnings.filterwarnings("ignore")
@@ -95,7 +94,7 @@ def mock_snakemake(rule_name, configfile=None, **wildcards):
         )
         raise
     dag = sm.dag.DAG(workflow, rules=[rule])
-    wc = Dict(wildcards)
+    wc = SimpleNamespace(**wildcards)
     job = sm.jobs.Job(rule, dag, wc)
 
     def make_accessable(*ios):
