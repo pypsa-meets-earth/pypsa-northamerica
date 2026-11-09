@@ -34,7 +34,7 @@ def add_ekerosene_buses(n):
 
     # add e-kerosene bus
     ekerosene_buses = [x.replace("oil", "e-kerosene") for x in oil_buses.index]
-    n.madd(
+    n.add(
         "Bus",
         ekerosene_buses,
         location=oil_buses.location.values,
@@ -45,7 +45,7 @@ def add_ekerosene_buses(n):
     n.add("Carrier", "e-kerosene", co2_emissions=n.carriers.loc["oil", "co2_emissions"])
 
     # add e-kerosene stores
-    n.madd(
+    n.add(
         "Store",
         [ekerosene_bus + " Store" for ekerosene_bus in ekerosene_buses],
         bus=ekerosene_buses,
@@ -56,7 +56,7 @@ def add_ekerosene_buses(n):
     logger.info("Added E-kerosene buses, carrier, and stores")
 
     # add links between E-kerosene and Oil buses so excess synthetic oil can be used
-    n.madd(
+    n.add(
         "Link",
         [x + "-to-oil" for x in ekerosene_buses],
         bus0=ekerosene_buses,
@@ -70,13 +70,13 @@ def add_ekerosene_buses(n):
     # link all e-kerosene buses with E-kerosene-main bus if set in config
     if snakemake.params.non_spatial_ekerosene:
         ekerosene_main_bus = ["E-kerosene-main"]
-        n.madd(
+        n.add(
             "Bus",
             ekerosene_main_bus,
             location="E-kerosene-main",
             carrier="e-kerosene-main",
         )
-        n.madd(
+        n.add(
             "Link",
             [x + "-to-main" for x in ekerosene_buses],
             bus0=ekerosene_buses,
@@ -85,7 +85,7 @@ def add_ekerosene_buses(n):
             p_nom_extendable=True,
             efficiency=1.0,
         )
-        n.madd(
+        n.add(
             "Link",
             [x.replace("e-kerosene", "main-to-e-kerosene") for x in ekerosene_buses],
             bus0=ekerosene_main_bus,
@@ -141,7 +141,7 @@ def redistribute_aviation_demand(n, rate):
     )
 
     # add e-kerosene for aviation load
-    n.madd(
+    n.add(
         "Load",
         total_aviation_demand.index.str.replace("kerosene", "e-kerosene"),
         bus=total_aviation_demand.bus.str.replace("oil", "e-kerosene").values,

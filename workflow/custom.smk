@@ -10,10 +10,7 @@ import sys
 
 sys.path.append("scripts")
 
-from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
 from scripts.custom._helper import renewable_profiles_outputs
-
-HTTP = HTTPRemoteProvider()
 
 RESULTS_DIR = "../plots/results/"
 PYPSA_EARTH_DIR = ""
@@ -658,7 +655,10 @@ if config["demand_distribution"]["set_distribution_fees"]:
         script:
             "../scripts/custom/set_distribution_fees.py"
 
-    ruleorder: set_distribution_fees > prepare_sector_network_distribution_fees_custom > prepare_sector_network
+    ruleorder:
+        set_distribution_fees
+        > prepare_sector_network_distribution_fees_custom
+        > prepare_sector_network
 
 
 if config["foresight"] == "overnight" and config["state_policy"] != "off":

@@ -118,6 +118,10 @@ def build_demand_profiles(df_utility_demand, df_ba_demand, gdf_ba_shape, pypsa_n
     pypsa_gpd = pypsa_gpd.to_crs(3857)
     pypsa_gpd["color"] = get_colors(len(pypsa_gpd))
 
+    # Keep the spatial join independent of the PyPSA bus index name.
+    # An unnamed right index produces the expected "index_right" column.
+    pypsa_gpd = pypsa_gpd.rename_axis(None)
+
     df_utility_centroid = gpd.sjoin_nearest(df_utility_centroid, pypsa_gpd, how="left")
     df_utility_centroid.rename(
         columns={"index_right": "PyPSA_bus", "Bus": "PyPSA_bus"}, inplace=True
@@ -195,11 +199,15 @@ def get_spatial_mapping(pypsa_network, gadm_shape_path, geo_crs):
     gadm_shape = gpd.read_file(gadm_shape_path)
 
     # create geodataframe out of x and y coordinates of buses
-    buses_gdf = gpd.GeoDataFrame(
-        pypsa_network.buses,
-        geometry=gpd.points_from_xy(pypsa_network.buses.x, pypsa_network.buses.y),
-        crs=geo_crs,
-    ).reset_index()
+    buses_gdf = (
+        gpd.GeoDataFrame(
+            pypsa_network.buses,
+            geometry=gpd.points_from_xy(pypsa_network.buses.x, pypsa_network.buses.y),
+            crs=geo_crs,
+        )
+        .rename_axis("Bus")
+        .reset_index()
+    )
 
     # map gadm shapes to each bus
     spatial_gadm_bus_mapping = (

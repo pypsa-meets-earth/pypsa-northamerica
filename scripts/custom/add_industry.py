@@ -40,7 +40,7 @@ def add_ammonia(n):
     n.add("Carrier", "NH3")
 
     # add ammonia bus
-    n.madd(
+    n.add(
         "Bus",
         nodes + " NH3",
         location=nodes,
@@ -51,7 +51,7 @@ def add_ammonia(n):
     # enable ammonia production flexibility
     if "ammonia" in config["custom_industry"]["production_flexibility"]:
         # add ammonia stores
-        n.madd(
+        n.add(
             "Store",
             nodes + " ammonia store",
             bus=nodes + " NH3",
@@ -64,7 +64,7 @@ def add_ammonia(n):
         logger.info("Added Ammonia stores")
 
     # add Haber-Bosch process to produce ammonia from hydrogen and electricity
-    n.madd(
+    n.add(
         "Link",
         nodes + " Haber-Bosch",
         bus0=nodes,
@@ -90,7 +90,7 @@ def add_ammonia(n):
         industrial_demand.loc[nodes, "ammonia"].rename(index=lambda x: x + " NH3")
         / nhours
     )
-    n.madd(
+    n.add(
         "Load",
         nodes + " NH3",
         bus=nodes + " NH3",
@@ -119,7 +119,7 @@ def add_ammonia(n):
         )
 
         # add SMR CC
-        n.madd(
+        n.add(
             "Link",
             SMR_CC_links.index,
             bus0=gas_buses,
@@ -153,7 +153,7 @@ def add_ethanol(n):
     n.add("Carrier", "bioethanol crop")
 
     # add bioethanol crop bus
-    n.madd(
+    n.add(
         "Bus",
         nodes + " bioethanol crop",
         location=nodes,
@@ -161,7 +161,7 @@ def add_ethanol(n):
     )
 
     # add bioethanol crop stores
-    n.madd(
+    n.add(
         "Store",
         nodes + " bioethanol crop store",
         bus=nodes + " bioethanol crop",
@@ -171,7 +171,7 @@ def add_ethanol(n):
     )
 
     # add bioethanol crop generator
-    n.madd(
+    n.add(
         "Generator",
         nodes + " bioethanol crop",
         bus=nodes + " bioethanol crop",
@@ -185,7 +185,7 @@ def add_ethanol(n):
     n.add("Carrier", "ethanol")
 
     # add ethanol bus
-    n.madd(
+    n.add(
         "Bus",
         nodes + " ethanol",
         location=nodes,
@@ -194,7 +194,7 @@ def add_ethanol(n):
     logger.info("Added ethanol carrier and buses")
 
     # add links of ethanol from starch crop
-    n.madd(
+    n.add(
         "Link",
         nodes + " ethanol from starch",
         bus0=nodes + " bioethanol crop",
@@ -214,7 +214,7 @@ def add_ethanol(n):
         industrial_demand.loc[nodes, "ethanol"].rename(index=lambda x: x + " ethanol")
         / nhours
     )
-    n.madd(
+    n.add(
         "Load",
         nodes + " ethanol",
         bus=nodes + " ethanol",
@@ -235,7 +235,7 @@ def add_ethanol(n):
         )
 
         # add ethanol from starch CC
-        n.madd(
+        n.add(
             "Link",
             nodes + " ethanol from starch CC",
             bus0=nodes + " bioethanol crop",
@@ -267,7 +267,7 @@ def add_steel(n):
     n.add("Carrier", "iron ore")
 
     # add iron ore bus
-    n.madd(
+    n.add(
         "Bus",
         nodes + " iron ore",
         location=nodes,
@@ -275,7 +275,7 @@ def add_steel(n):
     )
 
     # add iron ore stores
-    n.madd(
+    n.add(
         "Store",
         nodes + " iron ore store",
         bus=nodes + " iron ore",
@@ -285,7 +285,7 @@ def add_steel(n):
     )
 
     # add iron ore generator
-    n.madd(
+    n.add(
         "Generator",
         nodes + " iron ore",
         bus=nodes + " iron ore",
@@ -298,7 +298,7 @@ def add_steel(n):
     n.add("Carrier", "DRI")
 
     # add DRI bus
-    n.madd(
+    n.add(
         "Bus",
         nodes + " DRI",
         location=nodes,
@@ -314,7 +314,7 @@ def add_steel(n):
         * 1e3
         / nhours
     )
-    n.madd(
+    n.add(
         "Load",
         nodes + " DRI",
         bus=nodes + " DRI",
@@ -324,7 +324,7 @@ def add_steel(n):
     logger.info("Added DRI demand to DRI buses")
 
     # add DRI process to produce DRI/sponge iron from gas
-    n.madd(
+    n.add(
         "Link",
         nodes + " DRI",
         bus0=nodes + " gas",
@@ -366,7 +366,7 @@ def add_steel(n):
         x_dri = 1 - x_cc
 
         # add DRI CC
-        n.madd(
+        n.add(
             "Link",
             nodes + " DRI CC",
             bus0=nodes + " gas",
@@ -396,7 +396,7 @@ def add_steel(n):
 
     if config["custom_industry"]["H2_DRI"]:
         # add DRI process to produce steel from hydrogen
-        n.madd(
+        n.add(
             "Link",
             nodes + " DRI H2",
             bus0=nodes + " H2",
@@ -431,7 +431,7 @@ def add_steel(n):
     n.add("Carrier", "steel BF-BOF")
 
     # add steel BF-BOF bus
-    n.madd(
+    n.add(
         "Bus",
         nodes + " steel BF-BOF",
         location=nodes,
@@ -447,7 +447,7 @@ def add_steel(n):
         * 1e3
         / nhours
     )
-    n.madd(
+    n.add(
         "Load",
         nodes + " steel BF-BOF",
         bus=nodes + " steel BF-BOF",
@@ -460,7 +460,7 @@ def add_steel(n):
     n.add("Carrier", "scrap steel")
 
     # add scrap steel bus
-    n.madd(
+    n.add(
         "Bus",
         nodes + " scrap steel",
         location=nodes,
@@ -468,7 +468,7 @@ def add_steel(n):
     )
 
     # add scrap steel stores
-    n.madd(
+    n.add(
         "Store",
         nodes + " scrap steel store",
         bus=nodes + " scrap steel",
@@ -478,7 +478,7 @@ def add_steel(n):
     )
 
     # add scrap steel generator
-    n.madd(
+    n.add(
         "Generator",
         nodes + " scrap steel",
         bus=nodes + " scrap steel",
@@ -488,7 +488,7 @@ def add_steel(n):
     logger.info("Added scrap steel carrier, buses, stores and generators")
 
     # add steel BF-BOF process to produce steel from coal, iron ore and scrap steel
-    n.madd(
+    n.add(
         "Link",
         nodes + " BF-BOF",
         bus0=nodes + " coal",
@@ -541,7 +541,7 @@ def add_steel(n):
         )
 
         # add BF-BOF CC
-        n.madd(
+        n.add(
             "Link",
             nodes + " BF-BOF CC",
             bus0=nodes + " coal",
@@ -576,7 +576,7 @@ def add_steel(n):
     n.add("Carrier", "steel EAF")
 
     # add steel EAF bus
-    n.madd(
+    n.add(
         "Bus",
         nodes + " steel EAF",
         location=nodes,
@@ -592,7 +592,7 @@ def add_steel(n):
         * 1e3
         / nhours
     )
-    n.madd(
+    n.add(
         "Load",
         nodes + " steel EAF",
         bus=nodes + " steel EAF",
@@ -602,7 +602,7 @@ def add_steel(n):
     logger.info("Added steel EAF demand to steel EAF buses")
 
     # add steel EAF process to produce steel from electricity and scrap steel
-    n.madd(
+    n.add(
         "Link",
         nodes + " steel EAF",
         bus0=nodes,
@@ -629,7 +629,7 @@ def add_cement(n):
     n.add("Carrier", "clinker")
 
     # add clinker bus
-    n.madd(
+    n.add(
         "Bus",
         nodes + " clinker",
         location=nodes,
@@ -637,7 +637,7 @@ def add_cement(n):
     )
 
     # add clinker stores
-    n.madd(
+    n.add(
         "Store",
         nodes + " clinker store",
         bus=nodes + " clinker",
@@ -651,7 +651,7 @@ def add_cement(n):
     n.add("Carrier", "cement")
 
     # add cement bus
-    n.madd(
+    n.add(
         "Bus",
         nodes + " cement",
         location=nodes,
@@ -665,7 +665,7 @@ def add_cement(n):
         * 1e3
         / nhours
     )
-    n.madd(
+    n.add(
         "Load",
         nodes + " cement",
         bus=nodes + " cement",
@@ -675,7 +675,7 @@ def add_cement(n):
     logger.info("Added cement demand to cement buses")
 
     # add cement dry clinker techonology
-    n.madd(
+    n.add(
         "Link",
         nodes + " dry clinker",
         bus0=nodes + " gas",
@@ -697,7 +697,7 @@ def add_cement(n):
     logger.info("Added dry clinker process to produce clinker from gas and electricity")
 
     # add cement finishing technology
-    n.madd(
+    n.add(
         "Link",
         nodes + " cement finishing",
         bus0=nodes + " clinker",
@@ -757,7 +757,7 @@ def add_cement(n):
         )
 
         # add cement dry clinker CC
-        n.madd(
+        n.add(
             "Link",
             nodes + " dry clinker CC",
             bus0=nodes + " gas",
@@ -803,7 +803,7 @@ def split_biogenic_CO2(n):
     biogenic_co2_stored_buses = [
         x.replace("co2 stored", "biogenic co2 stored") for x in co2_stored_buses.index
     ]
-    n.madd(
+    n.add(
         "Bus",
         biogenic_co2_stored_buses,
         location=co2_stored_buses.location.values,
@@ -811,7 +811,7 @@ def split_biogenic_CO2(n):
     )
 
     # add biogenic co2 store
-    n.madd(
+    n.add(
         "Store",
         biogenic_co2_stored_buses,
         e_nom_extendable=True,
@@ -824,7 +824,7 @@ def split_biogenic_CO2(n):
     logger.info("Added biogenic CO2 carrier, buses, and stores")
 
     # add links from biogenic co2 stored to co2 stored
-    n.madd(
+    n.add(
         "Link",
         biogenic_co2_stored_buses,
         bus0=biogenic_co2_stored_buses,
@@ -871,7 +871,7 @@ def define_grid_H2(n):
     # add grid H2 buses
     h2_buses = n.buses.query("carrier in 'H2'")
     grid_h2_buses = [x.replace("H2", "grid H2") for x in h2_buses.index]
-    n.madd(
+    n.add(
         "Bus",
         grid_h2_buses,
         location=h2_buses.location.values,
@@ -903,7 +903,7 @@ def define_grid_H2(n):
 
     # add H2 Store Tank for grid H2
     h2_store_tanks = n.stores.query("carrier in 'H2 Store Tank'")
-    n.madd(
+    n.add(
         "Store",
         h2_store_tanks.index.str.replace("H2", "grid H2"),
         bus=h2_store_tanks.bus.str.replace("H2", "grid H2").values,
@@ -916,7 +916,7 @@ def define_grid_H2(n):
     logger.info("Added grid H2 Store Tank for grid H2")
 
     # connect grid H2 buses to H2 buses so H2 can be supplied
-    n.madd(
+    n.add(
         "Link",
         grid_h2_buses,
         bus0=grid_h2_buses,
@@ -941,7 +941,7 @@ def define_grid_H2(n):
             {"bus0": "first", "bus1": "first", "length": "mean", "capacity": "sum"}
         )
 
-        n.madd(
+        n.add(
             "Link",
             grid_h2_links.index,
             bus0=grid_h2_links.bus0.values + " grid H2",
@@ -977,7 +977,7 @@ def add_other_electricity(n):
     p_set = p_set_from_scaling(
         "other electricity", profile_ac, energy_totals, temporal_resolution
     )
-    n.madd(
+    n.add(
         "Load",
         ac_loads,
         suffix=" other electricity",
@@ -1073,7 +1073,7 @@ def add_data_centers_load(n):
     bus_demand = demand_data_centers.groupby(gadm_to_bus_mapping).sum()
 
     # add static data center load to the network
-    n.madd(
+    n.add(
         "Load",
         bus_demand.index,
         suffix=" data center",
@@ -1182,7 +1182,7 @@ def add_co2_storage_tanks(n):
 
         for c in carriers_for_buffer:
             co2_storage_tank_buses = n.buses[n.buses.carrier == c]
-            n.madd(
+            n.add(
                 "Bus",
                 co2_storage_tank_buses.index.str.replace(c, f"buffer {c}"),
                 location=co2_storage_tank_buses.location.values,
@@ -1195,7 +1195,7 @@ def add_co2_storage_tanks(n):
         # Connect buffer to tank
         for c in carriers_for_buffer:
             buffer_buses = n.buses[n.buses.carrier == f"buffer {c}"]
-            n.madd(
+            n.add(
                 "Link",
                 buffer_buses.index + " to tank",
                 bus0=buffer_buses.index,
@@ -1214,7 +1214,7 @@ def add_co2_storage_tanks(n):
 
         for c in carriers_for_buffer_geo:
             buffer_buses = n.buses[n.buses.carrier == c]
-            n.madd(
+            n.add(
                 "Link",
                 buffer_buses.index + " geological sequestration",
                 bus0=buffer_buses.index,
@@ -1258,7 +1258,7 @@ def add_co2_storage_tanks(n):
     # Geological sequestration (always added)
     # -------------------------------------------------------------------------
     co2_storage_tank_buses = n.buses[n.buses.carrier == "co2 storage steel tank"]
-    n.madd(
+    n.add(
         "Bus",
         co2_storage_tank_buses.index.str.replace(
             "storage steel tank", "geological sequestration"
@@ -1270,7 +1270,7 @@ def add_co2_storage_tanks(n):
     )
 
     co2_storage_tank_stores = n.stores[n.stores.carrier == "co2 storage steel tank"]
-    n.madd(
+    n.add(
         "Store",
         co2_storage_tank_stores.index.str.replace(
             "storage steel tank", "geological sequestration"
@@ -1290,7 +1290,7 @@ def add_co2_storage_tanks(n):
 
     for c in carriers_for_geo:
         co2_storage_tank_buses = n.buses[n.buses.carrier == c]
-        n.madd(
+        n.add(
             "Link",
             co2_storage_tank_buses.index + " geological sequestration",
             bus0=co2_storage_tank_buses.index,
