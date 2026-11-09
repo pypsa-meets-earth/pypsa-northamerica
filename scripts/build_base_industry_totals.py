@@ -8,7 +8,6 @@ Created on Thu Jul 14 19:01:13 2022.
 @author: user
 """
 
-
 import logging
 from pathlib import Path
 
